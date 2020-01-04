@@ -1,7 +1,7 @@
 <template>
 	<view>
 		<block v-for="(item,index) in data" :key="index">
-			<view class="box">
+			<view @tap="toDetail(item)" class="box">
 				<image :src="item.pic"></image>
 				<view class="rt">
 					<view class="top">{{item.title}}</view>
@@ -49,6 +49,14 @@ export default{
 		usermodel.checkVisitRecord(req,data=>{
 			this.data = data
 		})
+	},
+	methods:{
+		toDetail(item){
+			uni.navigateTo({
+				url:`/pages/provide/detail?sellerId=${item.sellerId}&id=${item.mainId}&type=${item.firstTypeInfoId}`
+			})
+			
+		}
 	}
 }
 </script>

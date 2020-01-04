@@ -7,7 +7,7 @@
 				</swiper-item>
 			</swiper>
 		</view>
-		<provide-title :price="[data.price + '/月']" :spec="data.squareMetre+'㎡  ' + '|' + '  ' + data.floor + '/' + data.attribute + '层'"
+		<provide-title :price="[data.price + '/月']" :spec="data.squareMetre+'㎡'"
 		:title="data.title" :disc="data.distance|fixOne"></provide-title>
 		
 		<view class="payType" @tap="toPayType">
@@ -29,13 +29,13 @@
 				<view class='item'>
 					<view class="lf">
 						<view class="type">面积<text>{{data.squareMetre}}㎡</text></view>
-						<view class="type">租房<text>合租</text></view>
 						<view class="type">年代<text>{{data.years}}</text></view>
+						<view class="type">楼高<text>{{data.attribute}}</text></view>
 					</view>
 					<view class="lf">
 						<view class="type">户型<text>{{data.houseType}}</text></view>
-						<view class="type">楼层<text>{{data.floor}}/{{data.attribute}}层</text></view>
 						<view class="type">房号<text>{{data.houseCode}}</text></view>
+						<view class="type">楼层<text>{{data.floor}}</text></view>
 					</view>
 				</view>
 				<view class="address">
@@ -60,18 +60,22 @@
 		
 		<view class="store">
 			<image class="storeImg" :src="data.logoPic"></image>
-			<view class="storeName">
-				<view>{{data.nickName}}</view>
-				<image src="/static/cut/company_cer.png"></image>
+			<view class="rt">
+				<view class="storeName">
+					<view>{{data.nickName}}</view>
+					<image src="/static/cut/company_cer.png"></image>
+				</view>
+				<view class="stars">
+					<view class="starlf">
+						<image src="/static/cut/star_on.png"></image>
+						<view>店铺评分{{data.mainScore}}</view>
+					</view>
+					<view class="starrt">
+						<view class="phone" @tap="phoneToSeller()">拨打电话</view>
+						<view class="into" @tap="toStore()">进店看看</view>
+					</view>
+				</view>
 			</view>
-			<view class="stars">
-				<block v-for="(item,index) in starIndex" :key="index">
-					<image :src="data.mainScore>index?starSrc:''"></image>
-				</block>
-				{{data.mainScore}}
-			</view>
-			<view class="into" @tap="toStore()">进店看看</view>
-			<image class="intoIcon" src="/static/cut/right_orange.png"></image>
 		</view>
 		
 		<view class="bottomFix">
@@ -80,7 +84,7 @@
 				<image v-else src="/static/cut/collected.png"></image>
 				<view>收藏</view>
 			</view>
-			<view class="contact">
+			<view  @tap="toContact()" class="contact">
 				<image src="/static/cut/message.png"></image>
 				<view>联系</view>
 			</view>
@@ -118,7 +122,8 @@
 				starIndex:[0,1,2,3,4],
 				picture:[],
 				isCollect:'',
-				isOpenDate:''
+				isOpenDate:'',
+				sellerData:''
 			}
 		},
 		methods:{
@@ -160,6 +165,31 @@
 				uni.navigateTo({
 					url:'paytype?data=' + JSON.stringify(this.data) 
 				})
+			},
+			phoneToSeller(){
+				uni.makePhoneCall({
+					phoneNumber:this.data.linkmanMobile
+				})
+			},
+			async toContact(){
+				if(this.sellerData.isFalse==1){
+					uni.showToast({
+						title:'该商家不在线，请您电话联系',
+						duration:1500,
+						icon:'none'
+					})
+					return
+				}
+				let name = ''
+				this.$store.commit('resetCurrentConversation')
+				this.$store.commit('resetGroup')
+				const {data:res} = await this.tim.getConversationProfile(`C2C${this.sellerData.userId}`)
+				name = res.conversation.userProfile.nick
+				this.$store.commit('updateCurrentConversation',res.conversation)
+				this.$store.dispatch('getMessageList')
+				uni.navigateTo({
+					url:'/pages/msg/chat?toAccount=' + name
+				})
 			}
 		},
 		onLoad:function(options){
@@ -167,7 +197,8 @@
 			housemodel.getHouseList({houseId:id,longitude:this.lon,latitude:this.lat},data=>{
 				this.data = data.houseList[0]
 				this.isCollect = data.isCollect
-				storemodel.getSellerStore({sellerId: this.data.sellerId},(res)=>{
+				storemodel.getSellerInfo({sellerId: this.data.sellerId},(res)=>{
+					this.sellerData = res
 					this.isOpenDate = res.isOpenDate;
 				})
 				this.data.mainScore = parseInt(this.data.mainScore)
@@ -280,7 +311,6 @@ text{
 
 .descri{
 	width:100%;
-	height:235rpx;
 	margin:20rpx 0;
 	background-color: #fff;
 	.container{
@@ -294,60 +324,6 @@ text{
 		.content{
 			margin-top: 29rpx;
 		}
-	}
-}
-
-.store{
-	width:100%;
-	height:160rpx;
-	position: relative;
-	background-color: #fff;
-	margin-bottom: 20rpx;
-	.storeImg{
-		position: absolute;
-		top:30rpx;
-		left:20rpx;
-		width:100rpx;
-		height:100rpx;
-	}
-	.storeName{
-		position: absolute;
-		top:36rpx;
-		left:142rpx;
-		display: flex;
-		align-items: center;
-		view{
-			font-size:34rpx;
-			font-weight:500;
-			color:rgba(60,60,60,1);
-		}
-		image{
-			width:24rpx;
-			height:24rpx;
-		}
-	}
-	.stars{
-		position: absolute;
-		top:100rpx;
-		left:142rpx;
-		image{
-			width:25rpx;
-			height:23rpx;
-		}
-	}
-	.into{
-		position: absolute;
-		top:108rpx;
-		right:40rpx;
-		color:#FF6600;
-		font-size:24rpx;
-	}
-	.intoIcon{
-		position: absolute;
-		top:115rpx;
-		right:20rpx;
-		width:10rpx;
-		height:19rpx;
 	}
 }
 

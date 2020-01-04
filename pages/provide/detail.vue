@@ -32,18 +32,25 @@
 		</view>
 		<view v-if="sellerdata.sellerId!==null" class="store">
 			<image class="storeImg" :src="sellerdata.logoPic"></image>
-			<view class="storeName">
-				<view>{{sellerdata.nickName}}</view>
-				<image src="/static/cut/company_cer.png"></image>
+			<view class="rt">
+				<view class="storeName">
+					<view>{{sellerdata.nickName}}</view>
+					<image src="/static/cut/company_cer.png"></image>
+				</view>
+				<view class="stars">
+					<view class="starlf">
+						<image src="/static/cut/star_on.png"></image>
+						<view>店铺评分{{sellerdata.mainScore}}</view>
+					</view>
+					<view class="starrt">
+						<view class="phone" @tap="phoneToSeller()">拨打电话</view>
+						<view class="into" @tap="toStore()">进店看看</view>
+					</view>
+				</view>
 			</view>
-			<view class="stars">
-				<block v-for="(item,index) in starIndex" :key="index">
-					<image :src="sellerdata.mainScore>index?starSrc:''"></image>
-				</block>
-				{{sellerdata.mainScore}}
-			</view>
-			<view class="into" @tap="toStore()">进店看看</view>
-			<image class="intoIcon" src="/static/cut/right_orange.png"></image>
+			
+			
+			
 		</view>
 		
 		<view class="bottomFix">
@@ -52,7 +59,7 @@
 				<image v-else src="/static/cut/collected.png"></image>
 				<view>收藏</view>
 			</view>
-			<view class="contact">
+			<view @tap="toChat" class="contact">
 				<image src="/static/cut/message.png"></image>
 				<view>联系</view>
 			</view>
@@ -222,6 +229,31 @@ export default{
 			uni.navigateTo({
 				url:'goodsComment?data=' + JSON.stringify(this.comment)
 			})
+		},
+		phoneToSeller(){
+			uni.makePhoneCall({
+				phoneNumber:this.sellerdata.linkmanMobile
+			})
+		},
+		async toChat(){
+			if(this.sellerdata.isFalse == 1){
+				uni.showToast({
+					title:'该商家不在线，请您电话联系',
+					duration:1500,
+					icon:'none'
+				})
+				return
+			}
+			let name = ''
+			this.$store.commit('resetCurrentConversation')
+			this.$store.commit('resetGroup')
+			const {data:res} = await this.tim.getConversationProfile(`C2C${this.sellerdata.userId}`)
+			name = res.conversation.userProfile.nick
+			this.$store.commit('updateCurrentConversation',res.conversation)
+			this.$store.dispatch('getMessageList')
+			uni.navigateTo({
+				url:'/pages/msg/chat?toAccount=' + name
+			})
 		}
 		
 	}
@@ -295,60 +327,6 @@ page{
 	}
 }
 
-.store{
-	width:100%;
-	height:160rpx;
-	position: relative;
-	background-color: #fff;
-	margin:20rpx 0;
-	.storeImg{
-		position: absolute;
-		top:30rpx;
-		left:20rpx;
-		width:100rpx;
-		height:100rpx;
-	}
-	.storeName{
-		position: absolute;
-		top:36rpx;
-		left:142rpx;
-		display: flex;
-		align-items: center;
-		view{
-			font-size:34rpx;
-			font-weight:500;
-			color:rgba(60,60,60,1);
-		}
-		image{
-			width:24rpx;
-			height:24rpx;
-		}
-	}
-	.stars{
-		position: absolute;
-		top:100rpx;
-		left:142rpx;
-		image{
-			width:25rpx;
-			height:23rpx;
-			margin-left: 5rpx;
-		}
-	}
-	.into{
-		position: absolute;
-		top:108rpx;
-		right:40rpx;
-		color:#FF6600;
-		font-size:24rpx;
-	}
-	.intoIcon{
-		position: absolute;
-		top:115rpx;
-		right:20rpx;
-		width:10rpx;
-		height:19rpx;
-	}
-}
 
 .popBox{
 	padding:20rpx;

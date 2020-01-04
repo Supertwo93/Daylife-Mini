@@ -10,7 +10,7 @@
 				<image src="/static/cut/diamond.png"></image>
 			</view>
 			<view class="tips">当前积分总数量</view>
-			<view class="store">{{uerInfo.store}}</view>
+			<view class="storePoint">{{uerInfo.store}}</view>
 		</view>
 		
 		<!-- <view class="topContainer">
@@ -151,7 +151,7 @@ page{
 		text-align: center;
 		color:rgba(255,255,255,1);
 	}
-	.store{
+	.storePoint{
 		width:100%;
 		text-align: center;
 		font-size:110rpx;

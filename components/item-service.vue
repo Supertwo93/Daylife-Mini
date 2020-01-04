@@ -115,7 +115,7 @@ export default {
 				}
 			}
 			.desc{
-				margin-left: 60rpx;
+				margin-left: 200rpx;
 				font-size:22rpx;
 				color:rgba(180,180,180,1);
 			}

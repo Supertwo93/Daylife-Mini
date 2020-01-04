@@ -1,5 +1,9 @@
 <template>
 	<view>
+		<block v-if="commentList.length==0">
+			<image class="image" src="https://sgz.wdttsh.com/mini_static/cut/no_user_comment.png"></image>
+			<view class="text">暂无评价</view>
+		</block>
 		<block v-if="commentList.length!=0">
 			<block v-for="(item,index) in commentList.goodCommentList" :key="index">
 				<comment-box :row="item" :margin="true" :button="false" v-on:delete="deleteUserComment(item)">
@@ -13,9 +17,7 @@
 				</comment-box>
 			</block>
 		</block>
-		<block v-if="commentList.length==0">
-			<image class="image" src="https://sgz.wdttsh.com/mini_static/cut/no_user_comment.png"></image>
-		</block>
+		
 	</view>
 </template>
 
@@ -32,20 +34,19 @@ export default{
 			starOff:'/static/cut/star_off.png',
 			starOn:'/static/cut/star_on.png',
 			starList:[0,1,2,3,4],
-			commentList:{}
+			commentList:[]
 		}
 	},
 	onLoad(){
 		usermodel.getUserComment((data)=>{
-			this.commentList = data
-			console.log(this.commentList)
+			this.commentList = data.goodCommentList
 		})
 	},
 	methods:{
 		deleteUserComment(item){
 			usermodel.deleteUserComment({commentIds:item.commentId},(data)=>{
 				usermodel.getUserComment((data)=>{
-					this.commentList = data
+					this.commentList = data.goodCommentList
 				})
 			})
 		}
@@ -85,5 +86,10 @@ page{
 			
 		}
 	}
+}
+
+.text{
+	margin-top: 40rpx;
+	margin-left: 320rpx;
 }
 </style>

@@ -6,11 +6,11 @@
 		</view>
 		
 		<view class="body" :class="[displayLink==1?'':'opa']" @tap.stop="hideLink()">
-			<view class="title">(每邀请1位好友获得10积分)</view>
+			<!-- <view class="title">(每邀请1位好友获得10积分)</view> -->
 			<view class="code">
-				<image src="https://sgz.wdttsh.com/mini_static/cut/bigcode.png"></image>
+				<image @tap="previewImage(src)" :src="src"></image>
 			</view>
-			<view class="number">邀请码：ABC123</view>
+			<view class="number">邀请码：{{uerInfo.refereeCode}}</view>
 			<button open-type="share">
 				<image class="shareLink" src="https://sgz.wdttsh.com/mini_static/cut/invite_person.png" @tap.stop="showLink()"></image>
 			</button>
@@ -21,12 +21,17 @@
 </template>
 
 <script>
+import {mapState} from 'vuex'
 export default{
 	data(){
 		return{
+			src:'https://sgz.wdttsh.com/mini_static/minicode.png',
 			displayLink:true
 		}
 	},
+	computed: {
+		...mapState(['uerInfo'])
+	},  
 	onShareAppMessage(res){
 		return{
 			title:'您的朋友邀请您使用天天生活',
@@ -43,6 +48,12 @@ export default{
 		toUser(){
 			uni.switchTab({
 				url:'../user'
+			})
+		},
+		previewImage(src){
+			uni.previewImage({
+				current:src,
+				urls:[src]
 			})
 		}
 	}

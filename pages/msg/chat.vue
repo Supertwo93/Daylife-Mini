@@ -1,17 +1,28 @@
 <template>
-	<view>
+	<view class="chat" id="chat" :style="{paddingBottom:isIpx ? (safeBottom + 40) + 'px':'40px'}"
+		@longpress="handleLongPress"
+		@touchmove="handleTouchMove"
+		@touchend="handleTouchEnd">
+		<view :class="isRecording?'':'modal-display'" class="record-modal">
+			<view class="wrapper">
+				<view class="modal-loading"></view>
+			</view>
+			<view class="modal-title">
+				{{title}}
+			</view>
+		</view>
 		<view id="list" @click="loseFocus" style="padding-bottom:50px">
 			<view v-for="(message,index) in currentMessageList" :key="message.ID" :id="message.ID">
 				<view class="notice" v-if="message.type==='TIMGroupTipElem' || message.type === 'TIMGroupSystemNoticeElem' ">
 					
 				</view>
 				
-				<view v-else :class="(message.flow === 'out')?'item-right' :'item.left'">
+				<view v-else :class="(message.flow === 'out')?'item-right' :'item-left'">
 					<view class="load" @click="handleResend(message)">
 						<view :class="message.status"></view>
 					</view>
 					<view class="content">
-						<view class="name">{{message.nick || message.from}}</view>
+						<!-- <view class="name">{{message.nick || message.from}}</view> -->
 					</view>
 					<view class="message" v-if="message.type==='TIMTextElem'">
 						<view class="text-message">
@@ -20,6 +31,20 @@
 								<image v-if="div.name==='img'" :src="div.src" style="width:20px;height:20px"></image>
 							</block>
 						</view>
+					</view>
+					<view class="message" v-else-if="message.type==='TIMFaceElem'">
+						<view class="custom-elem">
+							<image :src="faceUrl + message.payload.data + '@2x.png'" style="height:90px; width:90px"/>
+						</view>
+					</view>
+					<view class="message" v-else-if="message.type === 'TIMSoundElem'" :url="message.payload.url">
+						<view class="box" @tap="openAudio(message.payload)">
+							<image src="/static/cut/audio.png" style="height:20px;width:14px;"></image>
+							<view style="padding-left:10px">{{message.payload.second}}s</view>
+						</view>
+					</view>
+					<view class="message" v-else-if="message.type === 'TIMImageElem'" @tap="previewImage(message.payload.imageInfoArray[1].url)">
+						<image class="img" :src="message.payload.imageInfoArray[1].url" mode="aspectFit" style="max-width:200px;height:150px"></image>
 					</view>
 				</view>
 				
@@ -105,6 +130,15 @@
 
 <script>
 	import {mapState} from 'vuex'
+	const recorderManager = uni.getRecorderManager()
+	const audioContext = uni.createInnerAudioContext()
+	const recordOptions = {
+		duration:60000,
+		sampleRate:44100,
+		numberOfChannels:1,
+		encodeBitRate:192000,
+		format:'acc'
+	}
 	export default{
 		data(){
 			return{
@@ -397,14 +431,84 @@
 					'[麻将]': 'emoji_139@2x.png',
 					'[鼓掌]': 'emoji_140@2x.png',
 					'[龇牙]': 'emoji_141@2x.png'
-				}
+				},
+				sysInfo:{},
+				isShow:false,
+				faceUrl: 'https://webim-1252463788.file.myqcloud.com/assets/face-elem/',
+				isIpx:false,
+				height:0,
+				title: '正在录音',
+				isRecording:false,
+				isRecord:false,
+				canSend:true,
+				startPoint:0
 			}
 		},
 		onLoad(option){
-			console.log(option)
 			uni.setNavigationBarTitle({
 				title:option.toAccount
 			})
+			let sysInfo = uni.getSystemInfoSync()
+			this.sysInfo = sysInfo
+			this.height = sysInfo.windowHeight
+			this.isIpx = (sysInfo.model.indexOf('iPhone X') > -1)
+			let query = uni.createSelectorQuery()
+			let that = this
+			wx.$app.on(this.TIM.EVENT.MESSAGE_RECEIVED,()=>{
+				query.select('#chat').boundingClientRect(function(res){
+					if(res.bottom - that.height < 150) {
+						that.scrollToBottom()
+					}
+				}).exec()
+			})
+			let interval = setInterval(()=>{
+				if(this.currentMessageList.length !==0){
+					this.scrollToBottom()
+					clearInterval(interval)
+				}
+			},600)
+			this.$bus.$off('atUser')
+			this.$bus.$on('atUser', (user) => {
+				this.messageContent += user.userID
+				this.messageContent += ' '
+			})
+			recorderManager.onStart(()=>{
+				console.log('recorder start')
+			})
+			recorderManager.onPause(()=>{
+				console.log('recorder pause')
+			})
+			recorderManager.onStop((res)=>{
+				console.log('recorder stop')
+				uni.hideLoading()
+				if(this.canSend){
+					if(res.duration < 1000){
+						this.$store.commit('showToast',{
+							title:'录音时间太短'
+						})
+					}else{
+						const message = wx.$app.createAudioMessage({
+							to:this.$store.getters.toAccount,
+							conversationType:this.$store.getters.currentConversationType,
+							payload:{
+								file:res
+							}
+						})
+						this.$store.commit('sendMessage',message)
+						wx.$app.sendMessage(message)
+					}
+				}
+			})
+		},
+		onShow(){
+			this.isShow = true
+		},
+		onUnload(){
+			wx.$app.setMessageRead({conversationID:this.$store.state.conversation.currentConversationID})
+			this.isEmojiOpen = false
+			this.isMoreOpen = false
+			this.messageContent = ''
+			this.isShow = false
 		},
 		computed: {
 			...mapState({
@@ -415,6 +519,34 @@
 			})
 		},
 		methods:{
+			handleLongPress(e){
+				this.startPoint = e.touches[0]
+				if(e.target.id ==='record'){
+					this.title = '正在录音'
+					this.isRecording = true
+					this.startRecording()
+					this.canSend = true
+				}
+			},
+			handleTouchMove(e){
+				if(this.isRecording){
+					if(this.startPoint.clientY - e.touches[e.touches.length-1].clientY>100){
+						this.title='松开手指，取消发送'
+						this.canSend = false
+					}else if(this.startPoint.clientY - e.touches[e.touches.length - 1].clientY > 20){
+						this.title = '上划可取消'
+						this.canSend = true
+					}else {
+						this.title = '正在录音'
+						this.canSend = true
+					}
+				}
+			},
+			handleTouchEnd(){
+				this.isRecording = false
+				uni.hideLoading() 
+				recorderManager.stop()
+			},
 			loseFocus () {
 				this.handleClose()
 			},
@@ -444,6 +576,118 @@
 			},
 			chooseEmoji(item){
 				this.messageContent += item
+			},
+			sendMessage(){
+				if(!this.isnull(this.messageContent)){
+					const message = wx.$app.createTextMessage({
+						to:this.$store.getters.toAccount,
+						conversationType:this.$store.getters.currentConversationType,
+						payload:{text:this.messageContent}
+					})
+					let index = this.$store.state.conversation.currentMessageList.length
+					this.$store.commit('sendMessage',message)
+					wx.$app.sendMessage(message).catch(()=>{
+						this.$store.commit('changeMessageStatus',index)
+					})
+					this.messageContent = ''
+				}else{
+					this.$store.commit('showToast',{title:'消息不能为空'})
+				}
+				this.isFocus = false
+				this.isEmojiOpen = false
+				this.isMoreOpen = false
+			},
+			isnull(content){
+				if(content === ''){
+					return true
+				}
+				const reg = '^[ ]+$'
+				const re = new RegExp(reg)
+				return re.test(content)
+				
+			},
+			chooseRecord(){
+				this.isRecord = !this.isRecord
+			},
+			scrollToBottom(){
+				if(this.isShow){
+					uni.pageScrollTo({
+						scrollTop:99999
+					})
+				}
+			},
+			openAudio(audio){
+				let that = this
+				audioContext.src = audio.url
+				audioContext.play()
+				audioContext.onPlay(() => {
+					console.log('1111')
+				})
+				audioContext.onEnded(() => {
+					console.log(222)
+					uni.hideToast()
+				})
+				audioContext.onError(() => {
+					that.$store.commit('showToast', {
+						title: '小程序暂不支持播放该音频格式',
+						icon: 'none',
+						duration: 2000
+					})
+				})
+			},
+			startRecording(){
+				uni.getSetting({
+					success:(res) =>{
+						let auth = res.authSetting['scope.record']
+						if(auth === false){
+							uni.openSetting({
+								success:function(res){
+									let auth = res.authSetting['scope.record']
+									if(auth === true){
+										uni.showToast({
+											title:'授权成功',
+											icon:'success',
+											duration:1500
+										})
+									}else {
+										uni.showToast({
+											title:'授权失败',
+											icon:'none',
+											duration:1500
+										})
+									}
+								}
+							})
+						}else if (auth === true) {
+							this.isRecording = true
+							recorderManager.start(recordOptions)
+						}else {
+							uni.authorize({
+								scope:'scope.record',
+								success:()=>{
+									uni.showToast({
+										title:'授权成功',
+										icon:"success",
+										duration:1500
+									})
+								}
+							})
+						}
+					},
+					fail:function(){
+						wx.showToast({
+							title:'授权失败',
+							icon:'none',
+							duration:1500
+						})
+					}
+				})
+			},
+			previewImage(src){
+				uni.previewImage({
+					current:src,
+					urls:[src]
+				})
 			}
 		}
 	}
@@ -475,6 +719,25 @@
 .btn-small{
 	width:30px;
 	height:30px;
+}
+
+.box{
+	display: flex;
+	height:20px;
+	line-height: 20px;
+}
+
+.record{
+	margin-right: 10px;
+	width:100%;
+	border:1px solid #dddee1;
+	color:#80848f;
+	border-radius: 8px;
+	box-sizing: border-box;
+	height: 30px;
+	line-height: 30px;
+	display: flex;
+	justify-content: center;
 }
 .input{
 	border:1px solid #e9eaec;
@@ -579,7 +842,7 @@
 	}
 	.message{
 		background-color: #f8f8f9;
-		border-radius: 20px / 20px 0px 20px 20px;
+		border-radius: 20px / 0px 20px 20px;
 	}
 }
 
@@ -620,5 +883,64 @@
 	flex-direction: row;
 	flex-wrap:wrap;
 	white-space: pre-wrap;
+}
+
+.custom-elem{
+	background-color:#fff;
+	color: #2b85e4;
+}
+
+
+
+
+.record-modal{
+	height:150px;
+	width:60vw;
+	background-color: #000;
+	opacity: 0.8;
+	position: fixed;
+	top:200px;
+	z-index:9999;
+	left:20vw;
+	border-radius: 12px;
+	display: flex;
+	flex-direction: column;
+	.wrapper{
+		display: flex;
+		height:100px;
+		box-sizing: border-box;
+		padding: 10vw;
+		.modal-loading{
+			opacity: 1;
+			width:20px;
+			height:8px;
+			border-radius: 2px;
+			background-color: #2d8cf0;
+			animation: loading 2s cubic-bezier(.17,.37,.43,.67) infinite; 
+		}
+	}
+	.modal-title{
+		text-align: center;
+		color:#fff;
+	}
+}
+
+@-webkit-keyframes loading{
+	0%{
+		transform: translate(0,0)
+	}
+	50%{
+		transform: translate(30vw,0);
+		background-color: #f5634a;
+		width:40px;
+	}
+	100%{
+		transform: translate(0,0)
+	}
+}
+
+
+.modal-display{
+	display: none;
 }
 </style>

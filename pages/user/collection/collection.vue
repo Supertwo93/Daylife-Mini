@@ -158,6 +158,7 @@ export default{
 		
 	},
 	onShow(){
+		this.page = 1
 		this.getCollectgood(this.page)
 		this.getCollectshop(this.page)
 		this.getCollectcard(this.page)
@@ -230,6 +231,16 @@ export default{
 			this.tabbarIndex = tbIndex;
 		},
 		toDetail(item){
+			if(item.isMarketable==0){
+				uni.showToast({
+					icon:'none',
+					duration:1500,
+					title:'该商品已下架'
+				})
+				return 
+			}
+			
+			
 			if(item.goodsFirsttype!=5&&item.goodsFirsttype!=1){
 				uni.navigateTo({
 					url:`/pages/provide/detail?sellerId=${item.sellerId}&id=${item.goodsId}&type=${item.goodsFirsttype}`

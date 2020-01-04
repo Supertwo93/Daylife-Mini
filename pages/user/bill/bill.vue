@@ -7,6 +7,13 @@
 		</view>
 		
 		<view v-if="tabbarIndex==0" class="unpaid">
+			<block v-if="unpaidList.length===0">
+				<image class="noBillImage" src="https://sgz.wdttsh.com/mini_static/no-bill.png"></image>
+				<view class="noBillText">暂无账单</view>
+			</block>
+			
+			
+			
 			<view v-for="(item,index) in unpaidList" class="item" :key="index" @tap="toDetail(item)">
 				<view class="head">
 					<view class='title'>{{item.title}}</view>
@@ -199,5 +206,17 @@ page{
 	font-weight:400;
 	color:rgba(160,160,160,1);
 	line-height:40rpx;
+}
+
+.noBillImage{
+	width:402rpx;
+	height:389rpx;
+	margin-left: 170rpx;
+	margin-top: 270rpx;
+}
+.noBillText{
+	margin-top: 40rpx;
+	margin-left: 320rpx;
+	color:rgba(80,80,80,1);
 }
 </style>

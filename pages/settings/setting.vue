@@ -7,7 +7,7 @@
 				使用帮助
 				<view class="iconfont icon-dibudaohanglan-"></view>
 			</view>
-			<view class="container" @tap="toHelp()">
+			<view class="container" @tap="toChat()">
 				客服中心
 				<view class="iconfont icon-dibudaohanglan-"></view>
 			</view>
@@ -24,11 +24,11 @@
 		<view class="defaultTitle">通用</view>
 		
 		<view class="topContainer">
-			<view class="container" @tap="toHelp()">
+			<!-- <view class="container" @tap="toHelp()">
 				当前版本
 				<view class="iconfont icon-dibudaohanglan-"></view>
-			</view>
-			<view class="container none" @tap="toHelp()">
+			</view> -->
+			<view class="container none" @tap="clearStorage()">
 				清除缓存
 				<view class="iconfont icon-dibudaohanglan-"></view>
 			</view>
@@ -46,7 +46,20 @@
 export default{
 	data(){
 		return{
+			serviceId:'',
+			serviceNickname:''
 		}
+	},
+	onLoad(){
+		let that = this
+		uni.request({
+			url:'https://sgz.wdttsh.com/app/systemparam/getServiceInfo',
+			method:'POST',
+			success(res){
+				that.serviceId = res.data.data.serviceId
+				that.serviceNickname = res.data.data.serviceNickname
+			}
+		})
 	},
 	methods:{
 		...mapMutations(["logout"]),
@@ -66,22 +79,6 @@ export default{
 					
 				}
 			})
-			
-			
-			// userModel.getLogout((data)=>{
-			// 	uni.showModal({
-			// 	    content: '确定要退出登录么',
-			// 	    success: (e)=>{
-			// 	    	if(e.confirm){
-			// 	    		this.logout();
-			// 	    		setTimeout(()=>{
-			// 	    			uni.navigateBack();
-			// 	    		}, 200)
-			// 	    	}
-			// 	    }
-			// 	});
-				
-			// })
 		},
 		toHelp(){
 			uni.navigateTo({
@@ -96,6 +93,25 @@ export default{
 		toSuggestion(){
 			uni.navigateTo({
 				url:'suggestion'
+			})
+		},
+		clearStorage(){
+			uni.showToast({
+				title:'清除成功',
+				icon:'none',
+				duration:1500
+			})
+		},
+		toChat(){
+			this.$store.commit('resetCurrentConversation')
+			this.$store.commit('resetGroup')
+			this.tim.getConversationProfile(`C2C${this.serviceId}`)
+				.then((res) => {
+					this.$store.commit('updateCurrentConversation',res.data.conversation)
+					this.$store.dispatch('getMessageList')
+				}) 
+			uni.navigateTo({
+				url:"/pages/msg/chat?toAccount="+ this.serviceNickname
 			})
 		}
 	}

@@ -38,15 +38,15 @@
 				</view>
 				<view class="service-block">
 					<view class="item">
-						<text>{{userInfo.serviceCount}}</text>
-						<view>提供服务</view>
+						<text>{{userInfo.goodCommentCount}}</text>
+						<view>我的评价</view>
+					</view>
+					<view class="item"  @tap="toMyCollection()">
+						<text>{{userInfo.collectCount}}</text>
+						<view>我的收藏</view>
 					</view>
 					<view class="item">
-						<text>{{userInfo.needCount}}</text>
-						<view>享受服务</view>
-					</view>
-					<view class="item">
-						<text>{{userInfo.creditScore}}</text>
+						<text>{{userInfo.store}}</text>
 						<view>我的积分</view>
 					</view>
 					<view class="item" @tap="toMyRecord">
@@ -168,7 +168,7 @@
 							</view>
 							<text>邀请有礼</text>
 						</view>
-						<view class="item">
+						<view class="item" @tap="toChat()">
 							<view class='icon'>
 								<image src="../../static/cut/ionc-m.png" mode="widthFix"></image>
 							</view>
@@ -389,6 +389,25 @@ export default{
 		toMyRecord(){
 			uni.navigateTo({
 				url:'/pages/user/record/visitrecord'
+			})
+		},
+		toChat(){
+			let that = this
+			uni.request({
+				url:'https://sgz.wdttsh.com/app/systemparam/getServiceInfo',
+				method:'POST',
+				success(res){
+					that.$store.commit('resetCurrentConversation')
+					that.$store.commit('resetGroup')
+					that.tim.getConversationProfile(`C2C${res.data.data.serviceId}`)
+						.then((result) => {
+							that.$store.commit('updateCurrentConversation',result.data.conversation)
+							that.$store.dispatch('getMessageList')
+						}) 
+					uni.navigateTo({
+						url:"/pages/msg/chat?toAccount="+ res.data.data.serviceNickname
+					})
+				}
 			})
 		}
 	}

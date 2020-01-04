@@ -166,6 +166,78 @@
 		color:rgba(160,160,160,1);
 	}
 	
+	
+	
+	.store{
+		width:100%;
+		height:160rpx;
+		background-color: #fff;
+		padding:30rpx 20rpx;
+		display: flex;
+		margin: 20rpx 0;
+		.storeImg{
+			width:100rpx;
+			height:100rpx;
+		}
+		.rt{
+			width:580rpx;
+			margin-left: 20rpx;
+			height:100rpx;
+			.storeName{
+				align-items: center;
+				display: flex;
+				view{
+					font-size:32rpx;
+					color:rgba(60,60,60,1);
+				}
+				image{
+					width:24rpx;
+					height:24rpx;
+				}
+			}
+			.stars{
+				margin-top: 10rpx;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				.starlf{
+					display: flex;
+					align-items: center;
+					image{
+						width:25rpx;
+						height:23rpx;
+					}
+				}
+				.starrt{
+					display: flex;
+					.phone{
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						width:136rpx;
+						height:50rpx;
+						border:1rpx solid rgba(255,102,0,1);
+						border-radius:25rpx;
+						color:#FF6600;
+					}
+					.into{
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						margin-left: 10rpx;
+						width:136rpx;
+						height:50rpx;
+						background:linear-gradient(90deg,rgba(255,145,48,1),rgba(255,102,0,1));
+						border-radius:25rpx;
+						color:#fff;
+					}
+				}
+				
+			}
+		}
+	}
+	
+	
 	.whiteButton{
 		width:160rpx;
 		height:60rpx;
