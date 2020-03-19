@@ -1,13 +1,19 @@
 <template>
 	<view>
 		<view class="carousel-section">
-			<swiper class="swiper" circular="true" autoplay="true">
+			<swiper class="swiper" circular="true" autoplay="true"  @change="swiperChange">
+				<swiper-item v-if="video!=0">
+					<video :src="video"></video>
+				</swiper-item>
 				<swiper-item v-for="(item,index) in picture" :key="index">
 					<image class="swiper-img" :src="item" mode=""></image>
 				</swiper-item>
 			</swiper>
+			<view class="current">
+				{{current+1}}/{{swiperTotal}}
+			</view>
 		</view>
-		<provide-title :price="data.price" :title="data.title" disc="km"></provide-title>
+		<provide-title :price="data.price" :type="5" :spec="data.monthSale" :title="data.title" :disc="data.distance|fixOne"></provide-title>
 		
 		<view v-if="data.secondTypeId =='6364df4f0ede49da9063b6cc5d4dfc72' " class="choose" @tap="toSign">
 			<view class="title">类型</view>
@@ -27,10 +33,79 @@
 			</view>
 		</view>
 		
+		<view class="condition" v-if="data.secondTypeId == 'e7fb24d27ba141e4a038213bfc190076'">
+			<view class="quta">
+				<view class="quta-item">
+					<view class="item-name">额度</view>
+					<view class="item-price">{{data.loanQuota}}</view>
+				</view>
+				<view class="quta-item">
+					<view class="item-name">期限</view>
+					<view class="item-price">{{data.loanTimelimit}}</view>
+				</view>
+				<view class="quta-item">
+					<view class="item-name">费率</view>
+					<view class="item-price">{{data.loanRates}}</view>
+				</view>
+			</view>
+			<view class="apply">
+				<view class="apply-item">
+					<view class="apply-name">申请条件</view>
+					<view class="apply-content">{{data.applyCondition}}</view>
+				</view>
+				<view class="apply-item">
+					<view class="apply-name">申请要点</view>
+					<view class="apply-content">{{data.applyMainpoints}}</view>
+				</view>
+				<view class="apply-item">
+					<view class="apply-name">所需材料</view>
+					<view class="apply-content">{{data.applyMaterial}}</view>
+				</view>
+			</view>
+		</view>
+		
+		
+		
+		
 		<view class="detail">
 			<view class="title">业务详情</view>
 			<view class="content">{{data.details}}</view>
 		</view>
+		
+		<view class="comment">
+			<view class="top">
+				<view class="title">服务评价({{comment.length}})</view>
+				<view class="all" @tap="toComment">
+					<view>查看全部</view>
+					<image src="/static/cut/right_orange.png"></image>
+				</view>
+			</view>
+			<block v-if="comment.length==0">
+				<view class="noComment">该商品暂无评价</view>
+			</block>
+			<block v-else>
+				<view class="commentBox">
+					<view class="box-top">
+						<image class="logo" :src="commentOne.logoImg"></image>
+						<view class="user">
+							<view class="user-name">{{commentOne.nickName|starName}}</view>
+							<view class="star-point">
+								评分
+								<block v-for="(img,num) in starIndex" :key="num">
+									<image :src="commentOne.goodScore>num?src[0]:src[1]"></image>
+								</block>
+							</view>
+						</view>
+						<view class="time">{{commentOne.createTime}}</view>
+					</view>
+					<view class="comment-content">
+						<text class="comment-spec">#{{commentOne.spec}}#</text>
+						<text>{{commentOne.content}}</text>
+					</view>
+				</view>
+			</block>
+		</view>
+		
 		
 		<view class="store">
 			<image class="storeImg" :src="storeInfo.logoPic"></image>
@@ -41,8 +116,8 @@
 				</view>
 				<view class="stars">
 					<view class="starlf">
-						<image src="/static/cut/star_on.png"></image>
-						<view>店铺评分{{storeInfo.mainScore}}</view>
+						<image src="/static/cut/comment-star.png"></image>
+						<view>{{storeInfo.mainScore}}</view>
 					</view>
 					<view class="starrt">
 						<view class="phone" @tap="phoneToSeller()">拨打电话</view>
@@ -70,8 +145,8 @@
 				<view class="descri">
 					<image :src="data.specsList[labelIndex].specsPicture"></image>
 					<view class="content">
-						<view>{{data.specsList[labelIndex].specsPrice}}</view>
-						<view>配送至：龙岗区</view>
+						<view class="con-price">￥{{data.specsList[labelIndex].specsPrice}}</view>
+						<view>服务：龙岗区</view>
 					</view>
 				</view>
 				<view class="tips">请选择类型</view>
@@ -93,10 +168,25 @@ import uniPopup from "@/components/uni-popup/uni-popup.vue"
 import {FinanceModel} from '@/common/models/finance.js'
 import {StoreModel} from '@/common/models/store.js'
 import {LikeModel} from '@/common/models/like.js'
+import {OrderModel} from '@/common/models/order.js'
+import {mapState} from 'vuex'
 const likemodel = new LikeModel()
 let storemodel = new StoreModel()
 let financemodel = new FinanceModel()
+const ordermodel = new OrderModel()
 export default{
+	filters: {
+		fixOne(value){
+		
+			return parseFloat(value/1000).toFixed(1) + 'km'
+		},
+		starName(value){
+			return `${value.charAt(0)}***${value.charAt(value.length-1)}`
+		}
+	},
+	computed:{
+		...mapState(['lat','lon'])
+	},
 	components:{
 		provideTitle,
 		uniPopup
@@ -109,14 +199,30 @@ export default{
 			sellerId:'',
 			storeInfo:'',
 			starIndex:[0,1,2,3,4],
-			labelIndex:0
+			labelIndex:0,
+			video:'',
+			current:0,
+			swiperTotal:0,
+			comment:[],
+			src:['/static/cut/comment-star.png','/static/cut/commnet-star-dowm.png'],
+			commentOne:{}
 		}
 	},
 	onLoad(options){
 		console.log(options)
-		let req = {id:options.financeId,financeCode:options.code,sellerId:options.sellerId}
+		let req = {id:options.financeId,financeCode:options.code,sellerId:options.sellerId,latitude:this.lat,longitude:this.lon}
 		financemodel.getFinanceDetail(req,(data)=>{
 			this.picture = data.picture.split(',')
+			if(data.hasOwnProperty('imgVideo')){
+				this.video = data.imgVideo
+			}else{
+				this.video = 0
+			}
+			if(this.video==0){
+				this.swiperTotal = this.picture.length 
+			}else{
+				this.swiperTotal = this.picture.length + 1
+			}
 			this.data = data
 		})
 		this.sellerId = options.sellerId
@@ -124,7 +230,18 @@ export default{
 		storemodel.getSellerInfo(storeReq,(data)=>{
 			this.storeInfo = data
 		})
+		ordermodel.queryGoodsComment({goodsId:options.financeId},(data)=>{
+			this.comment = data.goodCommentList
+			if(this.comment.length==0){
+				let obj = {}
+				obj.nickName = 'stan'
+				this.commentOne = obj
+			}else{
+				this.commentOne = this.comment[0]
+			}
+		})
 	},
+	
 	methods:{
 		toStore(){
 			uni.navigateTo({
@@ -149,6 +266,11 @@ export default{
 				});
 			}
 			likemodel.like(this.data.id,this.data.firstTypeId,this.data.isCollect,(data)=>{
+			})
+		},
+		toComment(){
+			uni.navigateTo({
+				url:'/pages/provide/goodsComment?data=' + JSON.stringify(this.comment)
 			})
 		},
 		toSign(){
@@ -177,6 +299,10 @@ export default{
 				phoneNumber:this.storeInfo.linkmanMobile
 			})
 		},
+		swiperChange(e){
+			console.log(e)
+			this.current = e.detail.current
+		},
 		async toChat(){
 			if(this.storeInfo.isFalse == 1){
 				uni.showToast({
@@ -196,7 +322,8 @@ export default{
 			uni.navigateTo({
 				url:'/pages/msg/chat?toAccount=' + name
 			})
-		}
+		},
+		
 	}
 }
 </script>
@@ -207,6 +334,7 @@ page{
 	padding-bottom:110rpx;
 }
 .carousel-section{
+	position: relative;
 	swiper{
 		width:750rpx;
 		height:500rpx;
@@ -214,11 +342,28 @@ page{
 			width:750rpx;
 			height:500rpx;
 		}
+		video{
+			width:750rpx;
+			height:500rpx;
+		}
+	}
+	.current{
+		position:absolute;
+		right:20rpx;
+		bottom:20rpx;
+		width:60rpx;
+		height:34rpx;
+		background:rgba(0,0,0,1);
+		opacity:0.36;
+		border-radius:17px;
+		color:#fff;
+		text-align: center;
+		line-height:34rpx;
 	}
 }
 
 .choose{
-	margin:20rpx 0;
+	margin-top:20rpx;
 	height:84rpx;
 	background-color: #fff;
 	display: flex;
@@ -237,19 +382,19 @@ page{
 	}
 }
 .range{
-	padding:20rpx;
+	padding:0 20rpx;
 	background-color: #fff;
-	margin-bottom: 20rpx;
+	margin-top: 20rpx;
 	.title{
-		height:50rpx;
+		height:64rpx;
 		display: flex;
 		align-items: center;
 		border-bottom: 1rpx solid #f2f2f2;
 		color:rgba(120,120,120,1);
 	}
 	.label{
+		height:60rpx;
 		width:710rpx;
-		height:50rpx;
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
@@ -257,29 +402,33 @@ page{
 }
 
 .detail{
-	padding:20rpx;
+	padding:0 20rpx;
 	background-color: #fff;
-	margin-bottom: 20rpx;
+	margin-top: 20rpx;
 	.title{
-		height:50rpx;
+		height:64rpx;
 		display: flex;
 		align-items: center;
 		border-bottom: 1rpx solid #f2f2f2;
 		color:rgba(120,120,120,1);
 	}
 	.content{
-		margin-top:20rpx;
+		padding:20rpx 0;
 	}
 }
 
 .popBox{
-	height:740rpx;
 	padding:20rpx;
 	.descri{
 		display: flex;
 		height:200rpx;
 		.content{
 			margin-top: 84rpx;
+			.con-price{
+				color:#FF4E00;
+				font-size:36rpx;
+				font-weight: 800;
+			}
 		}
 		image{
 			margin-right: 15rpx;
@@ -304,7 +453,7 @@ page{
 			height:54rpx;
 			padding:0 15rpx;
 			border:1px solid rgba(180,180,180,1);
-			border-radius:8rpx;
+			border-radius:27rpx;
 			margin-left: 20rpx;
 			margin-top: 20rpx;
 			display: flex;
@@ -322,9 +471,120 @@ page{
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		margin-top: 200rpx;
+		margin-top: 150rpx;
 		background: linear-gradient(90deg,rgba(255,145,48,1),rgba(255,102,0,1));
-		border-radius:10rpx;;
+		border-radius:35rpx;;
+	}
+}
+
+.condition{
+	background-color: #fff;
+	padding:40rpx 20rpx;
+	margin-top: 20rpx;
+	.quta{
+		display: flex;
+		flex-wrap:wrap;
+		border-bottom:1rpx solid #f2f2f2;
+		padding-bottom:40rpx;
+		.quta-item{
+			display: flex;
+			width:350rpx;
+			&:last-child{
+				margin-top: 10rpx;
+			}
+			.item-name{
+				margin-right: 40rpx;
+				color:#A0A0A0;
+				font-size:28rpx;
+			}
+		}
+	}
+	.apply{
+		margin-top: 40rpx;
+		.apply-item{
+			display: flex;
+			align-items: center;
+			.apply-name{
+				width:150rpx;
+				color:#A0A0A0;
+				font-size:28rpx;
+			}
+			.apply-content{
+				width:550rpx;
+				
+			}
+		}
+	}
+}
+
+.comment{
+	margin-top: 20rpx;
+	background-color: #fff;
+	.top{
+		padding:0 20rpx;
+		height:84rpx;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		border-bottom: 1rpx solid #f2f2f2;
+		.all{
+			display: flex;
+			align-items: center;
+			view{
+				color:#FF6600;
+			}
+			image{
+				margin-left: 10rpx;
+				width:10rpx;
+				height:20rpx;
+			}
+		}
+	}
+	.commentBox{
+		padding:30rpx 20rpx;
+		.box-top{
+			display: flex;
+			align-items: center;
+			.logo{
+				margin-right: 10rpx;
+				width:64rpx;
+				height:64rpx;
+				border-radius:50%;
+			}
+			.user{
+				margin-right: 200rpx;
+				.star-point{
+					image{
+						margin-left: 6rpx;
+						width:22rpx;
+						height:22rpx;
+					}
+				}
+			}
+			.time{
+				font-size:24rpx;
+				color:rgba(140,140,140,1);
+			}
+		}
+		.comment-content{
+			margin-top: 20rpx;
+			margin-left: 70rpx;
+			width:650rpx;
+			text{
+				font-size:28rpx;
+			}
+			.comment-spec{
+				color:#FF6600;
+			}
+		}
+	}
+	.noComment{
+		padding:40rpx 0;
+		font-size:28rpx;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		color:#A0A0A0;
 	}
 }
 

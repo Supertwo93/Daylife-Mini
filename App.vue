@@ -174,7 +174,7 @@
 		background-color: #fff;
 		padding:30rpx 20rpx;
 		display: flex;
-		margin: 20rpx 0;
+		margin: 10rpx 0;
 		.storeImg{
 			width:100rpx;
 			height:100rpx;
@@ -204,8 +204,13 @@
 					display: flex;
 					align-items: center;
 					image{
-						width:25rpx;
-						height:23rpx;
+						margin-right: 7rpx;
+						width:24rpx;
+						height:25rpx;
+					}
+					view{
+						font-size:26rpx;
+						color:#FFC600;
 					}
 				}
 				.starrt{
@@ -328,26 +333,36 @@
 		height:84rpx;
 		background-color: #fff;
 		padding: 0 20rpx;
+		border-radius: 0 0 30rpx 30rpx;
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
 		.title{
-			border-left: 8rpx solid #FF6600;
-			font-size:28rpx;
-			font-weight:400;
 			padding-left:10rpx;
-			color:rgba(60,60,60,1);
+			display: flex;
+			align-items: center;
+			.title-border{
+				margin-right: 13rpx;
+				width:8rpx;
+				height:30rpx;
+				background:rgba(255,102,0,1);
+			}
+			.title-content{
+				font-size:34rpx;
+				font-weight:bold;
+				color:rgba(30,30,30,1);
+			}
 		}
 		.icon{
 			display: flex;
 			align-items: center;
 			font-size:28rpx;
 			font-weight:400;
-			color:rgba(120,120,120,1);
+			color:#FF6600;
 			image{
 				margin-left: 8rpx;
-				width:24rpx;
-				height:26rpx;
+				width:18rpx;
+				height:12rpx;
 			}
 		}
 	}
@@ -390,7 +405,30 @@
 			margin-left: 59rpx;
 			height:70rpx;
 			width:500rpx;
-			
+			border-radius: 35rpx;
+		}
+		.life-button{
+			margin-left: 59rpx;
+			display: flex;
+			view{
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-size:30rpx;
+				color:#fff;
+			}
+			.left{
+				width:250rpx;
+				height:70rpx;
+				background:linear-gradient(-90deg,rgba(255,180,0,1),rgba(250,226,67,1));
+				border-radius:35rpx 0px 0px 35rpx;
+			}
+			.right{
+				width:250rpx;
+				height:70rpx;
+				background:linear-gradient(90deg,rgba(255,145,48,1),rgba(255,102,0,1));
+				border-radius:0rpx 35rpx 35rpx 0px;
+			}
 		}
 	}
 	

@@ -54,7 +54,7 @@ class IndexModel extends HTTP{
   getOther(data,success){
 	  let params={
 		  method:"POST",
-		  url:"/app/otheradvert/getList?showPage=1&showPosition=1",
+		  url:"/app/otheradvert/getListNew?showPage=1",
 		  data:data,
 		  success:success
 	  }
@@ -70,8 +70,38 @@ class IndexModel extends HTTP{
 		}
 		this.request(params)
 	}
-
-
+	
+	getSearchComplete(data,success){
+		let params = {
+			method:"POST",
+			url:'/app/goodss/searchCompletion',
+			data:data,
+			success:success
+		}
+		this.request(params)
+	}
+	
+	getHomeRange(data,success){
+		let params = {
+			method:"POST",
+			url:'/app/appuser/homeRange',
+			data:data,
+			success:success
+		}
+		this.request(params)
+	}
+	
+	searchAll(data,success){
+		let params = {
+			method:"POST",
+			url:'/app/goodss/highlightHomeSearchAll',
+			data:data,
+			success:success
+		}
+		this.request(params)
+	}
+	
+	
 }
 
 export {IndexModel}

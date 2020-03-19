@@ -3,83 +3,111 @@
 		<view class="goodsInfo">
 			<image :src="data.specsList[index].specsPicture"></image>
 			<view class="container">
-				<view class="title">{{data.releaseFinance.title}}</view>
-				<view class="spec gray">{{data.specsList[index].specsName}}</view>
-				<view class="price gray">{{data.specsList[index].specsPrice}}</view>
+				<view class="con-title">{{data.title}}</view>
+				<view class="con-spec">{{data.specsList[index].specsName}}</view>
+				<view class="con-price">￥{{data.specsList[index].specsPrice}}</view>
 			</view>
 		</view>
 		
 		<view class="graytitle">基本信息</view>
 		
-		<view class="box">
-			<view class="star lf">姓名</view>
-			<view class="rg">
-				<input placeholder="请输入姓名" v-model="name"/>
+		<view class="boxContainer">
+			<view class="box" style="border-radius: 30rpx 30rpx 0 0;">
+				<view class="star lf">姓名</view>
+				<view class="rg">
+					<input placeholder="请输入姓名" v-model="name"/>
+				</view>
 			</view>
-		</view>
-		<view class="box">
-			<view class="star lf">性别</view>
-			<view class="rg">
-				<view class="sex" :class="{'on':female}" @tap="chooseFemale">女</view>
-				<view class="sex" :class="{'on':male}" @tap="chooseMale">男</view>
+			<view class="box">
+				<view class="star lf">性别</view>
+				<view class="rg">
+					<view class="sex" :class="{'on':female}" @tap="chooseFemale">女</view>
+					<view class="sex" :class="{'on':male}" @tap="chooseMale">男</view>
+				</view>
 			</view>
-		</view>
-		<view class="box">
-			<view class="star lf">联系电话</view>
-			<view class="rg">
-				<input placeholder="请输入手机号" v-model="phone"/>
+			<view class="box">
+				<view class="star lf">联系电话</view>
+				<view class="rg">
+					<input placeholder="请输入手机号" v-model="phone"/>
+				</view>
 			</view>
-		</view>
-		<view class="box">
-			<view class="star lf">身份证号</view>
-			<view class="rg">
-				<input placeholder="请输入身份证" v-model="idenNo"/>
+			<view class="box">
+				<view class="star lf">身份证号</view>
+				<view class="rg">
+					<input placeholder="请输入身份证" v-model="idenNo"/>
+				</view>
 			</view>
-		</view>
-		<view class="box">
-			<view class="star lf">公司名称</view>
-			<view class="rg">
-				<input placeholder="请输入公司名称" v-model="company"/>
+			<view class="box">
+				<view class="star lf">公司名称</view>
+				<view class="rg">
+					<input placeholder="请输入公司名称" v-model="company"/>
+				</view>
 			</view>
-		</view>
-		<view class="box">
-			<view class="star lf">公司地址</view>
-			<view class="rg">
-				<input placeholder="请输入公司地址" v-model="address"/>
+			<view class="box" style="border-radius: 0 0 30rpx 30rpx;">
+				<view class="star lf">公司地址</view>
+				<view class="rg">
+					<input placeholder="请输入公司地址" v-model="address"/>
+				</view>
 			</view>
 		</view>
 		
+		
+		<view class="uploadId">
+			<view class="star">上传身份证</view>
+			<view class="upload">
+				<view class="id">
+					<image :src="positiveImg" @tap="chooseImg(1)"></image>
+					<view class="gray">身份证正面</view>
+				</view>
+				<view class="id nagative">
+					<image :src="nagativeImg" @tap="chooseImg(2)"></image>
+					<view class="gray">身份证反面</view>
+				</view>
+			</view>
+		</view>
+		<view class="uploadBusiness">
+			<view class="star">上传营业执照</view>
+			<view class="image"><image :src="business" @tap="chooseImg(3)"></image></view>
+			
+		</view>
+		
+		
 		<view class="timepicker">
-			<view class="star title">租期时长</view>
+			<view class="star title">合同时长</view>
 			<view class="choose">
 				<view class="startDate">
 					<picker mode="date" :start="startday" @change="startdateChange">
-						<view>{{startDate}}</view>
+						<view class="sdate">{{startDate}}</view>
 					</picker>
 				</view>
 				<view>至</view>
 				<view class="endDate">
 					<picker mode="date" :start="endday" @change="enddateChange">
-						<view>{{endDate}}</view>
+						<view class="sdate">{{endDate}}</view>
 					</picker>
 				</view>
 				<image src="/static/cut/grayright.png"></image>
 			</view>
 		</view>
 		
+		
+		
 		<view class="confirm">
 			<view class="tips">
 				<view class="star">签约合同事项确认</view>
 				<image :src="[isContract?src[1]:src[0]]" @tap="conformToast"></image>
 			</view>
-			<view class="gray">请仔细阅读并确认租聘合同事项哦~<text @tap="toContract">点击查看合同</text></view>
+			<view class="confirm-text">请仔细阅读并确认租聘合同事项哦~<text @tap="toContract">点击查看合同</text></view>
 		</view>
 		
-		<view class="submit-button" @tap="toNext">下一步</view>
+		<view class="alert">注：确认签约后待商家同意签约，再支付款项</view>
+		<view class="submit-button" @tap="confirm">确认办理</view>
 	</view>
 </template>
 
 <script>
+import {FinanceModel} from '@/common/models/finance.js'
+const financemodel = new FinanceModel()
 export default{
 	data(){
 		return{
@@ -97,7 +125,11 @@ export default{
 			startDate:'请选择开始日期',
 			endDate:'请选择结束日期',
 			startday:'',
-			endday:''
+			endday:'',
+			positiveImg:'https://sgz.wdttsh.com/mini_static/cut/upload_idcard.png',
+			nagativeImg:'https://sgz.wdttsh.com/mini_static/cut/upload_idcard.png',
+			business:'https://sgz.wdttsh.com/mini_static/cut/upload_idcard.png',
+			type:'',
 		}
 	},
 	onLoad(options){
@@ -124,6 +156,32 @@ export default{
 				
 			}
 		},
+		chooseImg(type){
+			uni.chooseImage({
+				count:1,
+				success:(res)=>{
+					console.log(this.type)
+					let req = {img:res.tempFilePaths}
+					uni.uploadFile({
+						url: 'https://sgz.wdttsh.com/app/imgUpload/upload', 
+						filePath: res.tempFilePaths[0],
+						name: 'img',
+						success: (uploadFileRes) => {
+							let img = uploadFileRes.data;
+							img = JSON.parse(img)
+							if(type==1){
+								console.log(type)
+								this.positiveImg = img.data
+							}else if(type==2){
+								this.nagativeImg = img.data
+							}else if(type==3){
+								this.business = img.data
+							}
+						}
+					})
+				}
+			})
+		},
 		toContract(){
 			uni.navigateTo({
 				url:`/pages/house/housecontract?type=金融&code=${this.data.financeCode}` 
@@ -146,7 +204,7 @@ export default{
 		enddateChange(e){
 			this.endDate = e.target.value
 		},
-		toNext(){
+		confirm(){
 			if(this.name==''){
 				uni.showToast({
 					title:'请输入姓名',
@@ -182,6 +240,30 @@ export default{
 				})
 				return
 			}
+			if(!this.positiveImg.startsWith('http')){
+				uni.showToast({
+					title:'请上传身份证正面照',
+					icon:'none',
+					duration:1500
+				})
+				return
+			}
+			if(!this.nagativeImg.startsWith('http')){
+				uni.showToast({
+					title:'请上传身份证反面照',
+					icon:'none',
+					duration:1500
+				})
+				return
+			}
+			if(!this.business.startsWith('http')){
+				uni.showToast({
+					title:'请上传营业执照',
+					icon:'none',
+					duration:1500
+				})
+				return
+			}
 			let req = {}
 			req.name = this.name	
 			if(this.male==1){
@@ -201,8 +283,13 @@ export default{
 			req.specsId = this.data.specsList[this.index].specsId
 			req.financeCode = this.data.financeCode
 			req.orderType = 1
-			uni.navigateTo({
-				url:'uploadimage?data=' + JSON.stringify(req)
+			req.idPicture = this.positiveImg + ',' + this.nagativeImg
+			req.businessLicense = this.business
+			req = JSON.stringify(req)
+			financemodel.signFinance({signingFinanceJson:req},(data)=>{
+				uni.redirectTo({
+					url:`/pages/success/success?type=5`
+				})
 			})
 		}
 	}
@@ -212,10 +299,10 @@ export default{
 <style lang="scss">
 page{
 	background-color: #f2f2f2;
-	margin-top: 20rpx;
 	padding-bottom: 100rpx;
 }
 .timepicker{
+	border-radius: 30rpx;
 	height:84rpx;
 	background-color: #fff;
 	margin-top: 20rpx;
@@ -235,9 +322,14 @@ page{
 			width:10rpx;
 			height:20rpx;
 		}
+		.sdate{
+			font-size:28rpx;
+			color:#1E1E1E;
+		}
 	}
 }
 .goodsInfo{
+	border-radius: 0 0 30rpx 30rpx;
 	height:220rpx;
 	background-color: #fff;
 	padding:30rpx;
@@ -253,7 +345,25 @@ page{
 		margin-left: 10rpx;
 		flex-direction: column;
 		justify-content: space-between;
+		.con-title{
+			font-size:30rpx;
+			color:#1E1E1E;
+		}
+		.con-spec{
+			font-size:26rpx;
+			color:#008AFF;
+		}
+		.con-price{
+			color:#1E1E1E;
+			font-weight: 700;
+		}
 	}
+}
+
+
+
+.boxContainer{
+	border-radius: 30rpx;
 }
 
 .box{
@@ -296,6 +406,7 @@ page{
 }
 
 .confirm{
+	border-radius: 30rpx;
 	width:100%;
 	height:208rpx;
 	background-color: #fff;
@@ -312,7 +423,10 @@ page{
 			height:28rpx;
 		}
 	}
-	.gray{
+	.confirm-text{
+		text-align: center;
+		color:#1e1e1e;
+		font-size:28rpx;
 		margin-top: 39rpx;
 		text{
 			color:#FF6600;
@@ -320,4 +434,58 @@ page{
 	}
 }
 
+
+.uploadId{
+	border-radius: 30rpx;
+	margin-top: 20rpx;
+	width:750rpx;
+	height:412rpx;
+	background-color: #fff;
+	padding:0 20rpx;
+	.upload{
+		display: flex;
+		.id{
+			width:340rpx;
+			margin-top: 30rpx;
+			display: flex;
+			align-items: center;
+			flex-direction: column;
+		}
+		.nagative{
+			margin-left: 30rpx;
+		}
+	}
+}
+image{
+	width:340rpx;
+	height:220rpx;
+}
+.star{
+		height:82rpx;
+		display: flex;
+		align-items: center;
+		border-bottom: 1rpx solid #F2F2F2;
+	}
+
+.uploadBusiness{
+	border-radius: 30rpx;
+	margin-top: 20rpx;
+	height:373rpx;
+	width:750rpx;
+	background-color: #fff;
+	padding:0 20rpx;
+	.image{
+		width:710rpx;
+		height:290rpx;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+}
+.alert{
+	color:#FF0000;
+	display: flex;
+	justify-content: center;
+	margin: 20rpx 0;
+}
 </style>

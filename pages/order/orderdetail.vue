@@ -12,12 +12,14 @@
 			<block v-if="orderList.type=='finished'"><image :src="iconPath[orderList.type]"></image><view class="default">{{typeText[orderList.type]}}</view></block>
 			<block v-if="orderList.type=='housefinished'"><image :src="iconPath[orderList.type]"></image><view class="default">{{typeText[orderList.type]}}</view></block>
 		</view>
-		
+
 		<view class="location" v-if="orderList.firsttypeId!=1&&orderList.firsttypeId!=5">
-			<image src='../../static/cut/address_on.png'></image>
-			<view class="address">{{orderList.receiverAreaName}}</view>
-			<view class="username">{{orderList.receiver}}</view>
-			<view class="phone">{{orderList.receiverMobile}}</view>
+			<view class="info-title">
+				<image src='../../static/cut/icon-map.png'></image>
+				<view class="username">{{orderList.receiver}}</view>
+				<view class="phone">{{orderList.receiverMobile}}</view>
+			</view>
+			<view class="address">地址:{{orderList.receiverAreaName}}</view>
 		</view>
 		
 		<view class="goodsDetail">
@@ -59,6 +61,17 @@
 			
 		</view>
 		
+		<view class='contact'>
+			<view @tap="toChat" class='showMessage'>
+				<image src="../../static/cut/message-icon.png"></image>
+				<view>联系TA</view>
+			</view>
+			<view class="tel">
+				<image src="../../static/cut/phone_icon.png"></image>
+				<view>拨打电话</view>
+			</view>
+		</view>
+		
 		<view class="titleInfo">订单信息</view>
 		
 		<view class="info">
@@ -82,16 +95,7 @@
 				<view class="infoTitle">确认完成 12145464654142</view>
 				<view v-if="row.type=='orderNumber'" class="copy">复制</view>
 			</view> -->
-			<view class='contact'>
-				<view @tap="toChat" class='showMessage'>
-					<image src="../../static/cut/message.png"></image>
-					<view>联系TA</view>
-				</view>
-				<view class="tel">
-					<image src="../../static/cut/phone_icon.png"></image>
-					<view>拨打电话</view>
-				</view>
-			</view>
+			
 		</view>
 		
 		<view class="button">
@@ -268,84 +272,59 @@ page{
 	width:750rpx;
 	height:140rpx;
 	background:linear-gradient(90deg,rgba(255,145,48,1),rgba(255,102,0,1));
-	position:relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	image{
 		width:48rpx;
 		height:48rpx;
-		position:absolute;
-		top:46rpx;
-		bottom:46rpx;
-		left:20rpx;
 	}
 	.default{
-		position: absolute;
-		height:29rpx;
-		top:50rpx;
-		bottom:55rpx;
-		left:88rpx;
-		font-size:30rpx;
-		font-family:Source Han Sans CN;
-		font-weight:400;
+		margin-left: 20rpx;
+		font-size:34rpx;
+		font-weight: 500;
 		color:rgba(255,255,255,1);
 	}
 	
 }
 
 .location{
-	width:100%;
-	height:180rpx;
+	margin: 20rpx 0;
 	background-color: #fff;
-	margin-top:19rpx;
-	position:relative;
-	image{
-		width:50rpx;
-		height:60rpx;
-		position:absolute;
-		top:60rpx;
-		bottom:60rpx;
-		left:20rpx;
+	border-radius: 30rpx;
+	padding:30rpx;
+	.info-title{
+		margin-bottom: 20rpx;
+		display: flex;
+		align-items: center;
+		image{
+			width:26rpx;
+			height:31rpx;
+		}
+		.username{
+			margin-left: 20rpx;
+			margin-right: 30rpx;
+			font-size:28rpx;
+			color:#1E1E1E;
+		}
+		.phone{
+			font-size:28rpx;
+			color:#1E1E1E;
+		}
 	}
 	.address{
-		width:604rpx;
-		height:65rpx;
-		position:absolute;
-		top:37rpx;
-		bottom:78rpx;
-		right:44rpx;
-		left:102rpx;
-		font-size:30rpx;
-		font-weight:400;
-		color:rgba(100,100,100,1);
-		line-height:36rpx;
-	}
-	.username{
-		width:74rpx;
-		height:24rpx;
-		position:absolute;
-		top:120rpx;
-		left:102rpx;
+		margin-left: 75rpx;
+		color:#8C8C8C;
 		font-size:24rpx;
-		font-weight:400;
-		color:rgba(60,60,60,1);
-		line-height:36rpx;
-	}
-	.phone{
-		width:154rpx;
-		height:18rpx;
-		position:absolute;
-		top:123rpx;
-		left:202rpx;
-		font-size:24rpx;
-		font-weight:400;
-		color:rgba(160,160,160,1);
-		line-height:36rpx;
 	}
 }
 
 .type{
+	border-radius: 30rpx;
 	padding:0 20rpx 20rpx 20rpx;
 	background-color: #fff;
 }
+
 .deliverMoney{
 	display: flex;
 	justify-content: space-between;
@@ -366,13 +345,13 @@ page{
 	padding-left:20rpx;
 }
 .info{
+	border-radius: 30rpx;
 	background-color: #fff;
 	.for{
 		display: flex;
 		height:84rpx;
 		align-items: center;
 		justify-content: space-between;
-		border-bottom:1rpx solid #f2f2f2;
 		font-weight:400;
 		color:rgba(60,60,60,1);
 		.infoTitle{
@@ -427,7 +406,7 @@ page{
 	view{
 		min-width: 160rpx;
 		height: 60rpx;
-		border-radius:10px;
+		border-radius:30px;
 		display: flex;
 		justify-content: center;
 		align-items: center;
@@ -435,12 +414,12 @@ page{
 		margin-left: 20rpx;
 	}
 	.default{
-		border: solid 1upx #ccc;
-		color: #666;
+		border:1px solid rgba(180,180,180,1);
+		color: #1E1E1E;
 	}
 	.pay{
-		border: solid 1upx #ec652f;
-		color: #ec652f;
+		background:linear-gradient(90deg,rgba(255,145,48,1),rgba(255,102,0,1));
+		color: #FFFFFF;
 	}
 	
 }
@@ -458,5 +437,45 @@ page{
 	align-items: center;
 	font-size:28rpx;
 	color:rgba(60,60,60,1);
+}
+
+
+.contact{
+	border-radius: 30rpx;
+	margin-top: 20rpx;
+	background-color: #fff;
+	height:84rpx;
+	display: flex;
+	.showMessage{
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width:50%;
+		image{
+			width:28rpx;
+			height:28rpx;
+			margin-right: 14rpx;
+		}
+		view{
+			font-size:28rpx;
+			color:#0096FF;
+		}
+	}
+	.tel{
+		border-left:1rpx solid #f2f2f2;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width:50%;
+		image{
+			width:30rpx;
+			height:30rpx;
+			margin-right: 14rpx;
+		}
+		view{
+			font-size:28rpx;
+			color:#0096FF;
+		}
+	}
 }
 </style>

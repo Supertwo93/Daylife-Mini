@@ -93,6 +93,27 @@ class LikeModel extends HTTP{
   	  }
     this.request(params)
   }
+  
+	addCollect(data,success){
+		let params = {
+			method:"POST",
+			url:'/app/collectSeller/add',
+			data:data,
+			success:success
+		}
+		this.request(params)
+	}
+	
+	cancelCollect(data,success){
+		let params = {
+			method:"POST",
+			url:'/app/collectSeller/deleteOne',
+			data:data,
+			success:success
+		}
+		this.request(params)
+	}
+  
 
 }
 

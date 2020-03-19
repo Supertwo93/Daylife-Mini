@@ -1,64 +1,51 @@
 <template>
 	<view>
-		<block v-for="(item,index) in systemList" :key="index">
-			<view class="title">{{item.time}}</view>
-			<view class="container" v-for="(arr,idx) in item.arr" :key="idx" @tap="toSystemDetail(arr.id)">
-				<view>{{arr.title}}</view>
-				<image src="/static/cut/grayright.png"></image>
+		<block v-if="list.length===0">
+			<image class="noImg" src="https://sgz.wdttsh.com/mini_static/cut/mess_bg.png"></image>
+			<view class="noText">暂无系统消息</view>
+		</block>
+		<block v-else>
+			<view @tap="toDetail(item)" v-for="(item,index) in list" :key="index" class="item">
+				<view class="title">{{item.title}}</view>
+				<image src="https://sgz.wdttsh.com/mini_static/cut/black-arrow.png"></image>
 			</view>
 		</block>
-		<!-- <view class="title">三个月前</view> -->
 	</view>
 </template>
 
+
+
+
 <script>
+	import {UserModel} from '@/common/models/user.js'
+	const usermodel = new UserModel()
 	export default{
 		data(){
 			return{
-				systemList: [
-					{
-						time: '三个月内',
-						arr: [
-							{
-								id: 1,
-								title: "您又有新的同事加你为好友啦"
-							},
-							{
-								id: 2,
-								title: "您又有新的同事加你为好友啦"
-							},
-							{
-								id: 3,
-								title: "您又有新的同事加你为好友啦"
-							}
-						]
-					},
-					{
-						time: '三个月前',
-						arr: [
-							{
-								id: 4,
-								title: "您又有新的同事加你为好友啦"
-							},
-							{
-								id: 5,
-								title: "您又有新的同事加你为好友啦"
-							},
-							{
-								id: 6,
-								title: "您又有新的同事加你为好友啦"
-							}
-						]
-					}
-				]
+				queryInfo:{
+					pageNo:1,
+					pageSize:10
+				},
+				list:[]
 			}
 		},
+		onLoad(){
+			this.getList()
+		},
 		methods:{
-			toSystemDetail(e){
+			getList(){
+				usermodel.getSystemMessageList(this.queryInfo,data=>{
+					this.list = data
+					
+				})
+			},
+			toDetail(item){
+				let data = item.content.substring(item.content.indexOf('<div>'),item.content.indexOf('</body'))
 				uni.navigateTo({
-					url: "/pages/msg/systemdetail?id=" + e
+					url:`/pages/msg/systempage?data=${data}`
 				})
 			}
+			
 		}
 	}
 </script>
@@ -67,27 +54,36 @@
 page{
 	background-color: #f2f2f2;
 }
-.title{
-	height:63rpx;
-	padding-top: 20rpx;
-	padding-left: 20rpx;
-	font-size:24rpx;
-	font-family:Source Han Sans CN;
-	font-weight:400;
-	color:rgba(160,160,160,1);
+
+.noImg{
+	width:402rpx;
+	height:389rpx;
+	margin-top: 271rpx;
+	margin-left: 174rpx;
 }
-.container{
-	width:750rpx;
-	height:104rpx;
-	display: flex;
+
+.noText{
+	margin-top: 40rpx;
+	margin-left: 292rpx;
+}
+
+.item{
 	padding:0 20rpx;
+	border-bottom: 1rpx solid #f2f2f2;
+	height:105rpx;
+	display: flex;
+	background-color: #fff;
 	justify-content: space-between;
 	align-items: center;
-	background-color: #fff;
-	border-bottom:1rpx solid #f2f2f2;
+	view{
+		color:#1E1E1E;
+	}
 	image{
-		width:10rpx;
-		height:20rpx;
+		width:12rpx;
+		height:19rpx;
 	}
 }
+
+
+
 </style>

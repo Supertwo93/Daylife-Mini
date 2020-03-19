@@ -4,21 +4,21 @@
 		<view class="top">
 			<bavigationbar></bavigationbar>
 			<view class="shop-head">
-						<image class="item-img" :src="storeInfo.logoPic" alt=""></image>
-						<view class="main-left">
-							<view class="main-title">
-								<text class="tit">{{storeInfo.nickName}} <text class="iconfont icon-renyuanbaoming"></text></text>
-								<like class="icon" :isKeep=like @like="keep"></like>
-								
-							</view>
-							<view class="main-parameter">
-								<text class="iconfont icon-xing"></text>店铺总评分{{storeInfo.mainScore}}
-							</view>
-							<view class="address">
-								<text class="iconfont icon-dingwei"></text>{{storeInfo.address}}
-							</view>
-							
-						</view>
+				<image class="item-img" :src="storeInfo.logoPic" alt=""></image>
+				<view class="main-left">
+					<view class="main-title">
+						<text class="tit">{{storeInfo.nickName}} <text class="iconfont icon-renyuanbaoming"></text></text>
+						<image @tap="addToCollect" class="likeImg" v-if="storeInfo.isCollect==0" src="/static/cut/no_collect.png"></image>
+						<image @tap="cancelCollect" class="likeImg" v-else src="/static/cut/collected.png"></image>
+					</view>
+					<view class="main-parameter">
+						<text class="iconfont icon-xing"></text>店铺总评分{{storeInfo.mainScore}}
+					</view>
+					<view class="address">
+						<text class="iconfont icon-dingwei"></text>{{storeInfo.address}}
+					</view>
+					
+				</view>
 			</view>
 		</view>
 		<view class="spacing"></view>
@@ -36,7 +36,16 @@
 							<image :src="titem.smallPic" mode="widthFix"></image>
 							<view class="right_word">
 								<view class="t_info">{{titem.goodsName}}</view>
-								<view class="p_info"><view class="price_txt"><text>￥</text>{{titem.price}}</view><text>已接单{{titem.totalSale}}</text></view>
+								<view class="p_info">
+									<view class="price_txt">
+										<text>￥</text>{{titem.price}}
+									</view>
+									<text class="receive">
+										<text class="receive" v-if="titem.goodsFirsttype==3||titem.goodsFirsttype==9">已接单</text>
+										<text class="receive" v-if="titem.goodsFirsttype==8||titem.goodsFirsttype==10">月售</text>
+										{{titem.totalSale}}
+									</text>
+								</view>
 							</view>
 						</view>
 					</view>
@@ -44,6 +53,13 @@
 			</scroll-view>
 		</view>
 		
+		<view class="button-group">
+			<view class="contact" @tap="toChat()">
+				<image src="/static/cut/message.png"></image>
+				<view>联系TA</view>
+			</view>
+			<view @tap="toCart()" class="cart">购物车</view>
+		</view>
 	</view>
 	
 	
@@ -84,6 +100,9 @@ export default {
 		this.sellerId = option.sellerId;
 		this.loadData()
 		storemodel.getSellerInfo({sellerId:this.sellerId},data=>{
+			if(data.isCollect==1){
+				this.like = true
+			}
 			this.storeInfo = data
 		})
   },
@@ -100,6 +119,7 @@ export default {
 		},
 		loadData(){
 			storemodel.getShopGoods({sellerId:this.sellerId},(data)=>{
+				console.log(data)
 				this.list = data;
 				this.currentId = this.list[0].id;
 			})
@@ -145,7 +165,54 @@ export default {
 			uni.navigateTo({
 				url: `/pages/provide/detail?sellerId=${this.sellerId}&id=${id}&type=${type}`
 			})
+		},
+		toCart(){
+			uni.reLaunch({
+				url:'/pages/order/order?index=0'
+			})
+		},
+		async toChat(){
+			if(this.storeInfo.isFalse == 1){
+				uni.showToast({
+					title:'该商家不在线，请您电话联系',
+					duration:1500,
+					icon:'none'
+				})
+				return
+			}
+			let name = ''
+			this.$store.commit('resetCurrentConversation')
+			this.$store.commit('resetGroup')
+			const { data:res } = await this.tim.getConversationProfile(`C2C${this.storeInfo.userId}`)
+			console.log(res)
+			name = res.conversation.userProfile.nick
+			this.$store.commit('updateCurrentConversation',res.conversation)
+			this.$store.dispatch('getMessageList')
+			uni.navigateTo({
+				url:'/pages/msg/chat?toAccount=' + name
+			})
+		},
+		addToCollect(){
+			Likemodel.addCollect({sellerId:this.sellerId},data=>{
+				this.storeInfo.isCollect = 1
+				uni.showToast({
+					title:'收藏成功',
+					icon:'none',
+					duration:1500
+				})
+			})
+		},
+		cancelCollect(){
+			Likemodel.cancelCollect({sellerId:this.sellerId},data=>{
+				this.storeInfo.isCollect = 0
+				uni.showToast({
+					title:'取消收藏成功',
+					icon:'none',
+					duration:1500
+				})
+			})
 		}
+		
   },
   onReachBottom() { 
     
@@ -154,18 +221,20 @@ export default {
 </script>
 
 <style lang="scss">
+	page{
+		padding-bottom: 110rpx;
+	}
 	page,
 	.content {
 		height: 100%;
-		background-color: #FFFFFF;     
+		background-color: #f2f2f2;     
 		.top{
-			height: 28%;
+			height: 26%;
 			.spacing{
 				height: 20rpx;
 				background-color: #f8f8f8; 
 			}
 			.shop-head{
-				height: 180rpx;
 				display: flex;
 				padding:30rpx 20rpx;
 				image{
@@ -175,7 +244,7 @@ export default {
 					margin-right: 20rpx;
 				}
 				.main-left{
-						width: 590rpx;
+						width: 580rpx;
 						display: flex;
 						flex-direction: column;
 						justify-content: space-between;	
@@ -194,25 +263,31 @@ export default {
 									margin-left: 10rpx;
 								}	
 							}
+							.likeImg{
+								width:41rpx;
+								height:34rpx;
+							}
 						}
 						.iconfont{
 							margin-right: 10rpx;
 						}
 						.address{
-							overflow : hidden;
-							text-overflow: ellipsis;
-							display: -webkit-box;
-							-webkit-line-clamp: 1;
-							-webkit-box-orient: vertical;
-							word-wrap: break-word;
-							word-break: break-all;
+							// overflow : hidden;
+							// text-overflow: ellipsis;
+							// display: -webkit-box;
+							// -webkit-line-clamp: 2;
+							// -webkit-box-orient: vertical;
+							// word-wrap: break-word;
+							// word-break: break-all;
 						}
 					}
 				
 			}
 		}
 		.main-scroll {
-			height: 72%;
+			margin-top: 20rpx;
+			background-color: #fff;
+			height: 74%;
 			display: flex;
 			.left-aside {
 				flex-shrink: 0;
@@ -257,7 +332,7 @@ export default {
 				height: 70upx;
 				padding-top: 8upx;
 				font-size: 28upx;
-				color: #3C3C3C;
+				color: #1e1e1e;
 			}
 			.t-list{
 				display: flex;
@@ -290,6 +365,7 @@ export default {
 				.right_word{
 					width: 62%;
 					.t_info{
+						color:#1e1e1e;
 						margin-bottom: 30rpx;
 						overflow : hidden;
 						text-overflow: ellipsis;
@@ -304,13 +380,17 @@ export default {
 						justify-content: flex-start;
 						align-items: center;
 						text{
-							color: #B4B4B4;
-							font-size: 22rpx;
+							color: #FF6600;
+							font-size: 34rpx;
 						}
 						.price_txt{
 							color: #FF6600;
-							font-size: 26rpx;
+							font-size: 34rpx;
 							margin-right: 20rpx;
+						}
+						.receive{
+							font-size:24rpx;
+							color:#BEBEBE;
 						}
 					}
 				}
@@ -318,7 +398,46 @@ export default {
 		}
 	}
 	
-	
+	.button-group{
+		width:100%;
+		height:110rpx;
+		background-color: #fff;
+		position: fixed;
+		bottom:0;
+		z-index:999999;
+		display: flex;
+		align-items: center;
+		.contact{
+			margin-left: 20rpx;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			width:200rpx;
+			height:70rpx;
+			border:1rpx solid rgba(255,102,0,1);
+			border-radius:10rpx;
+			margin-right: 40rpx;
+			image{
+				width:28rpx;
+				height:28rpx;
+				margin-right: 14rpx;
+			}
+			view{
+				color:#FF6600;
+			}
+		}
+		.cart{
+			width:470rpx;
+			height:70rpx;
+			background:linear-gradient(-90deg,rgba(255,180,0,1),rgba(250,226,67,1));
+			border-radius:10rpx;
+			font-size:30rpx;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color:#fff;
+		}
+	}
 	
 	
 	

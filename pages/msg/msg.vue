@@ -13,13 +13,13 @@
 			
 		</view>
         <view v-else class="chat-list">
-			<view class="order-message" @tap="toOrderPage">
+			<!-- <view class="order-message" @tap="toOrderPage">
 				<image src="../../static/tab/order-message.png" mode=""></image>
 				<view class="rt">
 					<view>订单消息</view>
 					<text>这是订单消息内容</text>
 				</view>
-			</view>
+			</view> -->
 			
 			<view class="order-message" @tap="toSystemPage">
 				<image src="../../static/tab/system-message.png" mode=""></image>
@@ -62,8 +62,6 @@
 
 <script>
 	import {mapState,mapMutations} from 'vuex'
-	import {MsgModel} from '@/common/models/msg.js'
-	let msgModel = new MsgModel()
 	import {LoginModel} from '../../common/models/login.js'
 	let loginModel = new LoginModel();
 	import uniSwipeAction from "../../components/uni-swipe-action/uni-swipe-action.vue"
@@ -255,15 +253,15 @@
 		background-color: #fff;
 	}
 	.chat-list{
-		border-top: 20rpx solid #F2F2F2;
 		.order-message{
 			// height: 140upx;
+			border-top:1rpx solid #f2f2f2;
 			padding:30rpx 20rpx;
 			box-sizing: border-box;
 			display: flex;
 			// margin:20upx 0;
 			background: #FFF;
-			border-bottom: 20rpx solid #F2F2F2;
+			border-bottom: 10rpx solid #F2F2F2;
 			image{
 				width: 80upx;
 				height: 80upx;
@@ -275,7 +273,7 @@
 				flex-direction: column;
 				justify-content: space-between;
 				view{
-					font-size:30upx;
+					font-size:34upx;
 					font-weight:400;
 					color:rgba(60,60,60,1);
 				}
@@ -314,7 +312,7 @@
 						justify-content: space-between;
 						align-items: flex-end;
 						.usernam{
-							font-size: 26upx;
+							font-size: 30upx;
 						}
 						.time{
 							font-size: 22upx;

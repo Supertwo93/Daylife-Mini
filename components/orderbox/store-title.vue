@@ -1,9 +1,9 @@
 <template name="storeTitle">
-	<view class="storeInfo">
-		<view class="store">
-			<image class="storeIcon" src="/static/cut/dpicon.png"></image>
+	<view class="storeInfoCom">
+		<view class="storeCom">
+			<image class="storeIcon" src="https://sgz.wdttsh.com/mini_static/cut/black-store.png"></image>
 			<view class="storetitle">{{title}}</view>
-			<image class="arrow" src="/static/cut/grayright.png"></image>
+			<image class="arrow" src="https://sgz.wdttsh.com/mini_static/cut/black-arrow.png"></image>
 		</view>
 		<view class="status">{{typeText[status]}}</view>
 	</view>
@@ -58,14 +58,14 @@ export default {
 }
 </script>
 
-<style lang="scss">
-.storeInfo{
+<style lang="scss" scoped>
+.storeInfoCom{
 	background-color: #fff;
 	height:84rpx;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	.store{
+	.storeCom{
 		display: flex;
 		align-items: center;
 		.storeIcon{
@@ -73,17 +73,20 @@ export default {
 			height:23rpx;
 		}
 		.storetitle{
-			font-size: 24rpx;
+			color:#1E1E1E;
+			font-size: 28rpx;
 			margin-left: 10rpx;
+			font-weight: 700;
 		}
 		.arrow{
+			margin-top: 2rpx;
 			margin-left: 10rpx;
 			width:8.5rpx;
 			height:16.5rpx;
 		}
 	}
 	.status{
-		font-size:22rpx;
+		font-size:26rpx;
 		color:#FF6600;
 	}
 }

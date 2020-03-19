@@ -6,7 +6,8 @@
 			<view class="main-left">
 				<view class="main-title">
 					<text class="tit">{{store.name}}<text class="iconfont icon-renyuanbaoming"></text></text>
-					<like class="icon" :isKeep=like @like="keep"></like>
+					<image @tap="addToCollect" class="likeImg" v-if="store.isCollect==0" src="/static/cut/no_collect.png"></image>
+					<image @tap="cancelCollect" class="likeImg" v-else src="/static/cut/collected.png"></image>
 				</view>
 				<view class="main-parameter">
 					<text class="iconfont icon-xing"></text>店铺总评分{{store.score}}
@@ -44,7 +45,7 @@
 				<image src="/static/cut/message.png"></image>
 				<view>联系TA</view>
 			</view>
-			<view class="cartButton">购物车</view>
+			<view @tap="toCart" class="cartButton">购物车</view>
 		</view>
 	</view>
 </template>
@@ -74,7 +75,8 @@ export default{
 				name:'',
 				score:'',
 				address:'',
-				pic:''
+				pic:'',
+				isCollect:''
 			},
 			data:[],
 			apartmentType:['全部分类'],
@@ -92,6 +94,7 @@ export default{
 			this.store.score = data.mainScore
 			this.store.address = data.address
 			this.store.pic = data.logoPic
+			this.store.isCollect = data.isCollect
 			
 		})
 		
@@ -111,6 +114,11 @@ export default{
 		
 	},
 	methods:{
+		toCart(){
+			uni.reLaunch({
+				url:'/pages/order/order?index=0'
+			})
+		},
 		showType(index){
 			this.typebarIndex = index;
 			if(index==0){
@@ -128,12 +136,38 @@ export default{
 			})
 		},
 		toDetail(row){
+			console.log(row)
 			if(row.firstTypeId==5){
 				uni.navigateTo({
 					url:'/pages/finance/financedetail?financeId=' + row.financeId + '&code=' + row.financeCode + '&sellerId=' + row.sellerId
 				})
+			}else if(row.firsttypeId==1){
+				uni.navigateTo({
+					url:'/pages/house/housedetail?data='+row.id
+				})
 			}
-			
+		},
+		addToCollect(){
+			this.store.isCollect = 1
+			Likemodel.addCollect({sellerId:this.request.sellerId},data=>{
+				
+				uni.showToast({
+					title:'收藏成功',
+					icon:'none',
+					duration:1500
+				})
+			})
+		},
+		cancelCollect(){
+			this.store.isCollect = 0
+			Likemodel.cancelCollect({sellerId:this.request.sellerId},data=>{
+				
+				uni.showToast({
+					title:'取消收藏成功',
+					icon:'none',
+					duration:1500
+				})
+			})
 		}
 	}
 }
@@ -174,7 +208,11 @@ page{
 					text{
 						color: #FFCF27;
 						margin-left: 10rpx;
-					}	
+					}
+				}
+				.likeImg{
+					width:41rpx;
+					height:34rpx;
 				}
 			}
 			.address{
@@ -216,7 +254,8 @@ page{
 		overflow-x: hidden;
 		.title{
 			font-weight:500;
-			color:rgba(60,60,60,1);
+			color:#1e1e1e;
+			font-size:28rpx;
 			line-height:63rpx;
 			margin-left: 30rpx;
 		}

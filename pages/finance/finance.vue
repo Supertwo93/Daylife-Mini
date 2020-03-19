@@ -1,17 +1,20 @@
 <template>
 	<view>
-		<bavigationbar></bavigationbar>
+		<bavigationbar :firsttype="5"></bavigationbar>
 		<swiper style="height:200rpx;" :swiperImage="swiperImage"></swiper>
 		<view class="indexChooseType">
-			<view class="title">生活服务</view>
+			<view class="title">
+				<view class="title-border"></view>
+				<view class="title-content">金融服务</view>
+			</view>
 			<view class="icon" @tap="pop()">
-				筛选<image src="/static/cut/filter_icon.png"></image>
+				筛选<image src="https://sgz.wdttsh.com/mini_static/cut/triangle-down.png"></image>
 			</view>
 		</view>
 		
 		<blcok v-for="(row,number) in data" :key="number">
 			<item-service :src="row.picture.split(',')[0]" :title="row.title"
-			:money="row.price" :desc="row.loan_rates" @tap="toDetail(number)"
+			:money="row.price" :monthSale="row.monthSale" @tap="toDetail(number)"
 			:distance="row.distance|fixOne"></item-service>
 		</blcok>
 		<uni-popup ref="poptop" type="top">
@@ -71,19 +74,29 @@
 				typeData:'',
 				secondIndex:null,
 				pageNo:1,
-				orderItem:['价格升序','价格降序','评分升序','评分降序','距离升序','距离降序'],
+				orderItem:['价格升序','价格降序','距离最近'],
 				orderIndex:null,
-				orderNum:1
+				orderNum:1,
+				req:{
+					pageNo:1,
+					pageSize:10,
+					longitude:'',
+					latitude:'',
+					sort:'',
+					secondTypeId:''
+				}
 			}
 		},
 		onLoad(){
+			this.req.longitude = this.lon
+			this.req.latitude = this.lat
 			financemodel.getSwiperImage((data)=>{
 				for(let i = 0;i<data.length;i++){
 					this.swiperImage.push(data[i].coverImg)
 				}
 			})
-			let req = {pageNo:this.pageNo,pageSize:10,longitude:this.lon,latitude:this.lat}
-			financemodel.getFinanceList(req,(data)=>{
+			
+			financemodel.getFinanceList(this.req,(data)=>{
 				this.data = data
 			})
 		},
@@ -94,9 +107,8 @@
 		},
 		onReachBottom(){
 			this.status = 'loading'
-			this.pageNo++
-			let req = {pageNo:this.pageNo,pageSize:10,longitude:this.lon,latitude:this.lat}
-			financemodel.getFinanceList(req,(data)=>{
+			this.req.pageNo++
+			financemodel.getFinanceList(this.req,(data)=>{
 				if(data.length>0&&data.length<10){
 					this.data = this.data.concat(data)
 					this.status = 'noMore'
@@ -126,7 +138,7 @@
 				}else{
 					if(this.secondIndex == index){
 						this.secondIndex = null
-						this.secondId = item.secondtypeinfoId
+						this.secondId = ''
 					}else{
 						this.secondIndex = index
 						this.secondId = item.secondtypeinfoId
@@ -148,6 +160,26 @@
 				}
 			},
 			confirmSecond(){
+				this.req.pageNo = 1
+				if(this.secondIndex==null&&this.orderIndex==null){
+					this.req.sort = 1
+					this.req.secondTypeId = ''
+				}else if(this.secondIndex!=null&&this.orderIndex!=null){
+					this.req.sort = this.orderNum
+					this.req.secondTypeId = this.secondId
+				}else if(this.secondIndex==null&&this.orderIndex!=null){
+					this.req.sort = this.orderNum
+					this.req.secondTypeId = ''
+				}else if(this.secondIndex!=null&&this.orderIndex==null){
+					this.req.sort = 1
+					this.req.secondTypeId = this.secondId
+				}
+				financemodel.getFinanceList(this.req,(data)=>{
+					this.data = data
+					if(data.length<10){
+						this.status = 'noMore'
+					}
+				})
 				this.$refs.poptop.close()
 			}
 		}

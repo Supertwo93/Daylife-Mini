@@ -45,6 +45,7 @@
 						request.nickname = that.data.nickname
 						loginModel.bindPhone(request,data=>{
 							that.login(data)
+							// that.tim.login({userID:data.appuserId,userSig:data.userSig})
 							uni.navigateBack({
 								delta:2
 							})

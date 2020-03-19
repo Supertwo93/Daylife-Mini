@@ -6,7 +6,14 @@
 		<view class="rg">
 			<view class="topBox">
 				<view class="title">{{title}}</view>
-				<view class="distance">{{distance}}km</view>
+				
+			</view>
+			<view class="middle">
+				<view v-if="isHouse==0" class="gray-box">
+					<text v-if="isVIP==0">已接单{{monthSale}}</text>
+					<text v-if="isVIP==1">已办理人数{{monthSale}}</text>
+				</view>
+				<view v-if="isHouse==1" class="gray-box">面积{{desc}}</view>
 			</view>
 			<view class="bottom">
 				<view class="money">
@@ -19,7 +26,8 @@
 						</block>
 					</view>
 				</view>
-				<view class="desc">{{desc}}</view>
+				<view class="distance">{{distance}}km</view>
+				<!-- <view class="desc">{{desc}}</view> -->
 			</view>
 		</view>
 	</view>
@@ -52,6 +60,18 @@ export default {
 		type:{             //会员卡类型
 			type:String,
 			value:''
+		},
+		monthSale:{
+			type:String,
+			value:''
+		},
+		isHouse:{
+			type:Boolean,
+			value:false
+		},
+		isVIP:{
+			type:Boolean,
+			value:false
 		}
 		
 	},
@@ -65,60 +85,80 @@ export default {
 
 <style lang="scss">
 .item{
+	border-radius: 30rpx;
 	margin-top: 10rpx;
 	width:750rpx;
-	height:220rpx;
+	height:190rpx;
 	background-color: #fff;
-	padding:30rpx 20rpx 30rpx 20rpx;
+	padding:20rpx;
 	display: flex;
 	.lf{
 		.goodImg{
-			width:160rpx;
-			height:160rpx;
+			width:150rpx;
+			height:150rpx;
 			border-radius:10rpx;
 		}
 	}
 	.rg{
+		
 		width:520rpx;
 		margin-left: 20rpx;
 		display: flex;
 		flex-direction: column;
 		justify-content: space-between;
 		.topBox{
-			display: flex;
-			justify-content: space-between;
 			.title{
-				width:478rpx;
-				font-size:26rpx;
+				overflow : hidden;
+				text-overflow: ellipsis;
+				display: -webkit-box;
+				-webkit-line-clamp: 1;
+				-webkit-box-orient: vertical;
+				word-wrap: break-word;
+				word-break: break-all;
+				font-size:30rpx;
 				font-weight:400;
-				color:rgba(60,60,60,1);
-				line-height:40rpx;
+				color:#1e1e1e;
 			}
-			.distance{
-				font-size:24rpx;
-				font-weight:400;
-				color:rgba(120,120,120,1);
+		}
+		.middle{
+			display: flex;
+			.gray-box{
+				background:rgba(255,255,255,1);
+				border:1rpx solid rgba(160,160,160,1);
+				border-radius:6rpx;
+				font-size:22rpx;
+				height:30rpx;
+				line-height: 30rpx;
+				padding:0 5rpx;
+				color:rgba(140,140,140,1);
 			}
 		}
 		.bottom{
 			display: flex;
 			align-items: center;
 			.money{
+				width:150rpx;
+				margin-right: 120rpx;
 				display: flex;
 				align-items: flex-end;
 				.number{
 					text{
 						font-size: 34rpx;
 						color:#FF6600;
-						line-height:36px;
 					}
 				}
 			}
-			.desc{
-				margin-left: 200rpx;
-				font-size:22rpx;
-				color:rgba(180,180,180,1);
+			.distance{
+				font-size:26rpx;
+				font-family:Source Han Sans CN;
+				font-weight:400;
+				color:rgba(140,140,140,1);
 			}
+			// .desc{
+			// 	margin-left: 200rpx;
+			// 	font-size:22rpx;
+			// 	color:rgba(180,180,180,1);
+			// }
 		}
 	}
 }

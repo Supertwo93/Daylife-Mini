@@ -1,8 +1,8 @@
 <template>
 	<view>
-		<view v-for="(item,index) in agreementList" :key="index">
+		<view v-for="(item,index) in agreementList" :key="index" class="itemBox">
 			<view class="top">
-				<view class="status" v-if="item.contractState==1">履行中</view>
+				<view class="status" v-if="item.contractState==1">合同履行中</view>
 				<view class="status" v-if="item.contractState==2">已解约</view>
 				<view class="status" v-if="item.contractState==3">解约中</view>
 				<view class="status" v-if="item.contractState==4&&item.firsttypeId==1">续租中</view>
@@ -10,11 +10,13 @@
 				<view class="icon">乙方</view>
 			</view>
 			<view class="middle" @tap="toDetail(item)">
-				<view class="title">{{item.partyaName}}</view>
-				<view class="default">合同编号：{{item.contractCode}}</view>
-				<view class="default">合同时长：{{item.contractStarttime}}至{{item.contractEndtime}}</view>
-				<view v-if="item.firsttypeId==1" class="default">月租金：￥{{item.rental}}</view>
-				<view v-if="item.firsttypeId==5" class="default">代理费：￥{{item.specsPrice}}</view>
+				<image :src="item.picture.split(',')[0]"></image>
+				<view class="itemDetail">
+					<view class="title">{{item.partyaName}}</view>
+					<view class="default">合同时长：{{item.contractStarttime}}至{{item.contractEndtime}}</view>
+					<view v-if="item.firsttypeId==1" class="price">月租金：￥{{item.rental}}</view>
+					<view v-if="item.firsttypeId==5" class="price">代理费：￥{{item.specsPrice}}</view>
+				</view>
 			</view>
 			<view class="bottom">
 				<view class="time">{{item.createDate}}</view>
@@ -54,6 +56,7 @@ export default{
 	onLoad() {
 		usermodel.queryContractDetails((data)=>{
 			this.agreementList = data
+			console.log(this.agreementList)
 		})
 	},
 	methods:{
@@ -118,11 +121,13 @@ page{
 	background-color: #f2f2f2;
 }
 
+
+
 .top{
+	border-radius: 30rpx 30rpx 0 0;
 	margin-top: 20rpx;
 	background-color: #fff;
 	height:100rpx;
-	border-bottom:1rpx solid #DCDCDC;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -149,15 +154,20 @@ page{
 }
 .middle{
 	background-color: #fff;
-	height:254rpx;
-	border-bottom:1rpx solid #DCDCDC;
 	padding-left: 19rpx;
 	padding-top: 29rpx;
+	display: flex;
+	
+	image{
+		width:150rpx;
+		height:150rpx;
+		border-radius:10rpx;
+		margin-right: 20rpx;
+	}
 	.title{
-		width:700rpx;
 		font-weight:400;
-		color:rgba(60,60,60,1);
-		line-height:36rpx;
+		font-size:28rpx;
+		color:rgba(30,30,30,1);
 		overflow : hidden;
 		text-overflow: ellipsis;
 		display: -webkit-box;
@@ -167,13 +177,15 @@ page{
 		word-break: break-all;
 	}
 	.default{
-		margin-top: 25rpx;
-		font-weight:400;
-		color:rgba(140,140,140,1);
-		line-height:36rpx;
+		color:rgba(0,138,255,1);
+	}
+	.price{
+		font-size:28rpx;
+		color:rgba(30,30,30,1);
 	}
 }
 .bottom{
+	border-radius: 0 0 30rpx 30rpx;
 	background-color: #fff;
 	height:100rpx;
 	display: flex;
@@ -181,9 +193,9 @@ page{
 		width:370rpx;
 		padding-top: 41rpx;
 		padding-left: 19rpx;
-		font-size:22rpx;
+		font-size:26rpx;
 		font-weight:400;
-		color:rgba(160,160,160,1);
+		color:#1E1E1E;
 	}
 	.buttons{
 		width:380rpx;
@@ -199,7 +211,7 @@ page{
 			height:60rpx;
 			background:rgba(255,255,255,1);
 			border:1rpx solid rgba(200,200,200,1);
-			border-radius:10rpx;
+			border-radius:30rpx;
 		}
 	}
 }

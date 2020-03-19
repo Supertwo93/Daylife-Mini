@@ -29,6 +29,18 @@ class CheckModel extends HTTP {
 		}
 		this.request(params)
 	}
+	
+	
+	getCheckRule(data,success){
+		let params = {
+				method:"POST",
+				url:"/app/usersign/findSignInStore",
+				data:data,
+				success:success
+		}
+		this.request(params)
+		
+	}
 }
 
 export {CheckModel}

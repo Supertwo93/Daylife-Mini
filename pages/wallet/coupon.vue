@@ -7,6 +7,12 @@
 		</view>
 		
 		<view class="couponList">
+			<block v-if="coupons.length==0">
+				<image class="noCouponImg" src="https://sgz.wdttsh.com/mini_static/no-coupon.png"></image>
+				<view class="noCouponText">暂无优惠券可使用</view>
+			</block>
+			
+			
 			<view v-for="(item,index) in coupons" :key="index" class="item">
 				<view class="left">
 					<view class="title">{{item.title}}</view>
@@ -149,5 +155,16 @@ page{
 		}
 		
 	}
+}
+
+.noCouponImg{
+	width:402rpx;
+	height:389rpx;
+	margin-left: 174rpx;
+	margin-top: 203rpx;
+}
+.noCouponText{
+	margin-top: 40rpx;
+	margin-left: 276rpx;
 }
 </style>

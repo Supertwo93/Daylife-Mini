@@ -58,8 +58,8 @@ export default {
 	background-color: #fff;
 	display: flex;
 	image{
-		width:140rpx;
-		height:140rpx;
+		width:150rpx;
+		height:150rpx;
 		border-radius:10rpx;
 	}
 	.content{
@@ -69,6 +69,10 @@ export default {
 			display: flex;
 			justify-content: space-between;
 			align-items: flex-start;
+			.title{
+				color:#1e1e1e;
+				font-size:28rpx;
+			}
 		}	
 	}
 }

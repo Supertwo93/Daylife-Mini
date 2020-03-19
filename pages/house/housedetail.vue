@@ -1,11 +1,17 @@
 <template>
 	<view>
 		<view class="carousel-section">
-			<swiper class="swiper" circular="true" autoplay="true">
+			<swiper class="swiper" circular="true" autoplay="true" @change="swiperChange">
+				<swiper-item v-if="video!=0" :key="index">
+					<video class="swiper-img" :src="video" mode=""></video>
+				</swiper-item>
 				<swiper-item v-for="(item,index) in picture" :key="index">
 					<image class="swiper-img" :src="item" mode=""></image>
 				</swiper-item>
 			</swiper>
+			<view class="current">
+				{{current+1}}/{{swiperTotal}}
+			</view>
 		</view>
 		<provide-title :price="[data.price + '/月']" :spec="data.squareMetre+'㎡'"
 		:title="data.title" :disc="data.distance|fixOne"></provide-title>
@@ -67,8 +73,8 @@
 				</view>
 				<view class="stars">
 					<view class="starlf">
-						<image src="/static/cut/star_on.png"></image>
-						<view>店铺评分{{data.mainScore}}</view>
+						<image src="/static/cut/comment-star.png"></image>
+						<view>{{data.mainScore}}</view>
 					</view>
 					<view class="starrt">
 						<view class="phone" @tap="phoneToSeller()">拨打电话</view>
@@ -123,7 +129,10 @@
 				picture:[],
 				isCollect:'',
 				isOpenDate:'',
-				sellerData:''
+				sellerData:'',
+				video:'',
+				current:0,
+				swiperTotal:0,
 			}
 		},
 		methods:{
@@ -150,7 +159,6 @@
 				})
 			},
 			toStore(){
-				9
 				uni.navigateTo({
 					url:`../shop/storeindex?sellerId=${this.data.sellerId}&type=1`
 				})
@@ -170,6 +178,10 @@
 				uni.makePhoneCall({
 					phoneNumber:this.data.linkmanMobile
 				})
+			},
+			swiperChange(e){
+				console.log(e)
+				this.current = e.detail.current
 			},
 			async toContact(){
 				if(this.sellerData.isFalse==1){
@@ -204,6 +216,21 @@
 				this.data.mainScore = parseInt(this.data.mainScore)
 				this.label = this.data.label.split(',')
 				this.picture = this.data.picture.split(',')
+				if(this.data.hasOwnProperty('imgVideo')){
+					this.video = this.data.imgVideo
+				}else{
+					this.video = 0
+				}
+				if(this.video==0){
+					this.swiperTotal = this.picture.length 
+				}else{
+					this.swiperTotal = this.picture.length + 1
+				}
+				if(this.data.hasOwnProperty('survey')){
+					console.log(true)
+				}else{
+					this.data.survey = '暂无详情'
+				}
 			})
 		}
 	}
@@ -215,6 +242,7 @@ page{
 	padding-bottom:130rpx;
 }
 .carousel-section{
+	position: relative;
 	swiper{
 		width:750rpx;
 		height:500rpx;
@@ -222,13 +250,30 @@ page{
 			width:750rpx;
 			height:500rpx;
 		}
+		video{
+			width:750rpx;
+			height:500rpx;
+		}
+	}
+	.current{
+		position:absolute;
+		right:20rpx;
+		bottom:20rpx;
+		width:60rpx;
+		height:34rpx;
+		background:rgba(0,0,0,1);
+		opacity:0.36;
+		border-radius:17px;
+		color:#fff;
+		text-align: center;
+		line-height:34rpx;
 	}
 
 }
 
 .payType{
 	background-color: #fff;
-	margin:20rpx 0;
+	margin:10rpx 0;
 	height:84rpx;
 	width:750rpx;
 	display: flex;
@@ -311,8 +356,9 @@ text{
 
 .descri{
 	width:100%;
-	margin:20rpx 0;
+	margin:10rpx 0;
 	background-color: #fff;
+	padding-bottom:20rpx;
 	.container{
 		margin: 0 20rpx;
 		.title{

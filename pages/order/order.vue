@@ -31,23 +31,24 @@
 				<view class="container">
 					
 					<view class="storeInfo">
-						<view class="checkbox" @tap="shopChoose(row)">
+						<view class="checkbox" @tap.stop="shopChoose(row)">
 							<image v-if="row.select==0" src="../../static/cut/no_selected.png"></image>
 							<image v-if="row.select==1" src="../../static/cut/selected.png"></image>
 						</view>
-						<image class="storeIcon" src="../../static/cut/dpicon.png"></image>
+						<image class="storeIcon" src="https://sgz.wdttsh.com/mini_static/cut/black-store.png"></image>
 						<view class="storeTitle">{{row.sellerName}}</view>
+						<image class="storeArrow" src="https://sgz.wdttsh.com/mini_static/cut/black-arrow.png"></image>
 					</view>
 					
 					
-					<view class="goodsInfo" v-for="(good,index) in row.orderItemList" :key="index">
+					<view class="goodsInfo" v-for="(good,index) in row.orderItemList" :key="index" @tap="toGoodsDetail(good)">
 						
-						<view class="menu" @tap="deleteItem(good,index)">
+						<view class="menu" @tap.stop="deleteItem(good,index)">
 							<view class="icon iconfont icon-iconfontshanchu1"></view>
 						</view>
 						
 						<view class="carrier" :class="[theIndex==index&&theNumber==number?'open':oldIndex==index&&oldNumber==number?'close':'']" @touchstart="touchStart(index,number,$event)" @touchmove="touchMove(index,number,$event)" @touchend="touchEnd(index,number,$event)">
-							<view class="checkbox" @tap="goodChoose(row,good)">
+							<view class="checkbox" @tap.stop="goodChoose(row,good)">
 								<image v-if="good.selected == false" src="../../static/cut/no_selected.png"></image>
 								<image v-if="good.selected == true" src="../../static/cut/selected.png"></image>
 								
@@ -59,14 +60,14 @@
 								<view class="choose">
 									<view class="price">￥{{good.price}}</view>
 									<view class="number">
-										<view class="sub">
-											<image src="../../static/cut/sub_click.png" @tap.stop="sub(good)"></image>
+										<view class="sub" @tap.stop="sub(good)">
+											<image src="https://sgz.wdttsh.com/mini_static/cut/minus.png" ></image>
 										</view>
 										<view class="input">
 											<input type="number" v-model="good.num"/>
 										</view>
-										<view class="add">
-											<image src="../../static/cut/add_click.png" @tap.stop="add(good)"></image>
+										<view class="add"  @tap.stop="add(good)">
+											<image src="https://sgz.wdttsh.com/mini_static/cut/plus.png"></image>
 										</view>
 									</view>
 								</view>
@@ -77,18 +78,18 @@
 			</view>
 			
 			<view class="footer" v-if="shopingCarlist.length!=0">
-				<view class="checkbox" @tap="allChoose()">
+				<view class="checkbox" @tap.stop="allChoose()">
 					<image v-if="allSelected==0" src="../../static/cut/no_selected.png"></image>
 					<image v-if="allSelected==1" src="../../static/cut/selected.png"></image>
 					<view class="all">全选</view>
 				</view>
 				<view v-if="isAccounted==0" class="left">
-					<view class="manage" @tap="tab()">管理</view>
+					<view class="manage" @tap.stop="tab()">管理</view>
 					<view class="totalTitle">合计：<text>￥{{sumPrice.toFixed(2)}}</text></view>
 					<view class="button" @tap="settlement">结算</view>
 				</view>
 				<view v-if="isAccounted==1" class="right">
-					<view class="acomplish" @tap="tab()">完成</view>
+					<view class="acomplish" @tap.stop="tab()">完成</view>
 					<!-- <view class="moveButton">移至收藏</view> -->
 					<view class="button" @tap="deleteList">删除</view>
 				</view>
@@ -112,11 +113,7 @@
 						<store-main :pic="row.picPath" :title="row.title" :price="'￥'+row.price"
 						:specsize="row.spec" :spec="'×' + row.num"></store-main>
 					</block>
-					<view v-if="tabbarIndex!=5" class="deliverMoney">
-						<view class="deliverTitle">配送费</view>
-						<view class="money">￥{{item.postFee}}</view>
-					</view>
-					<view v-if="tabbarIndex!=5" class="total">合计:￥{{item.payment}}</view>
+					<view v-if="tabbarIndex!=5" class="total">合计:<text class="total-price">￥{{item.payment}}</text></view>
 					<store-time :time="item.createTime" :type="item.type" 
 					@rating="goRating(item)" @confirmOrder="confirmOrderOk(item)" 
 					@backOrder="applyService(item) " @cancelOrder="cancelUnpaidOrder(item)"
@@ -145,7 +142,7 @@
 				</view>
 				
 				<view v-if="item.firsttypeId==5&&item.secondTypeId=='6364df4f0ede49da9063b6cc5d4dfc72'" class="type" @tap="toDetail(item)">
-					<store-title :title="item.nickName" :status="item.type"></store-title>
+					<store-title :title="item.sellerNickName" :status="item.type"></store-title>
 					<store-main :pic="item|picOne" :title="item.title" :specsize="item.specsName"
 					:price="'￥'+item.specsPrice"></store-main>
 					<view class="sum">合计:￥{{item.sum}}</view>
@@ -154,7 +151,7 @@
 				</view>
 				
 				<view v-if="item.firsttypeId==5&&item.secondTypeId!='6364df4f0ede49da9063b6cc5d4dfc72'" class="type" @tap="toDetail(item)">
-					<store-title :title="item.nickName" :status="item.type"></store-title>
+					<store-title :title="item.sellerNickName" :status="item.type"></store-title>
 					<store-main :pic="item|picOne" :title="item.title" :specsize="item.specsName"></store-main>
 					<store-time :time="item.createDate" :type="item.type" v-on:cancelOrder="cancelUnpaidOrder(item)"
 					v-on:toPay="toPayment(item)"></store-time>
@@ -418,7 +415,11 @@
 				this.isStop = false;
 			},
 			//控制左滑删除效果-end
-			
+			toGoodsDetail(row){
+				uni.navigateTo({
+					url:`/pages/provide/detail?sellerId=${row.sellerId}&id=${row.goodsId}&type=8`
+				})
+			},
 			goRating(item){
 				if(item.firsttypeId == 8||item.firsttypeId==3||item.firsttypeId==10||item.firsttypeId==9){
 					let data = {}
@@ -563,7 +564,7 @@
 						duration:1500
 					})
 					setTimeout(()=>{
-						uni.switchTab({
+						uni.reLaunch({
 							url:'/pages/order/order?index=5'
 						})
 					},1500)
@@ -594,7 +595,7 @@
 											duration:2000
 										})
 										setTimeout(()=>{
-											uni.switchTab({
+											uni.reLaunch({
 												url:'/pages/order/order?index=5' 
 											})
 										},2000)
@@ -664,7 +665,7 @@
 									duration:1000,
 									icon:'none'
 								})
-								uni.switchTab({
+								uni.reLaunch({
 									url:'/pages/order/order?index=1' 
 								})
 							
@@ -682,6 +683,12 @@ page{
 	background-color:#f2f2f2;
 	padding-bottom:100rpx;
 }
+
+.total-price{
+	font-size:36rpx;
+	color:#1e1e1e;
+}
+
 .hasLogin{
 	display: flex;
 	flex-direction: column;
@@ -707,29 +714,31 @@ page{
 	}
 }
 .topTabBar{
+	border-radius: 0 0 30rpx 30rpx;
 	position:fixed;
 	z-index: 10;
 	top:0;
 	width:100%;
-	height:64rpx;
+	height:78rpx;
 	background-color: #fff;
 	display: flex;
 	justify-content: space-around;
 	.grid{
 		width:20%;
-		height:64rpx;
+		height:78rpx;
 		display:flex;
 		justify-content: center;
 		align-items: center;
-		color:#787878;
+		color:#1E1E1E;
 		font-size:24rpx;
 		.text{
 			height:62rpx;
 			display: flex;
 			align-items: center;
 			&.on{
+				font-weight: 700;
 				color: #FF6600;
-				border-bottom: solid 2rpx #FF6600;
+				border-bottom: solid 4rpx #FF6600;
 			}
 		}
 	}
@@ -755,14 +764,23 @@ page{
 		}
 	}
 	.row{
+		&:first-child{
+			margin-top: 90rpx;
+		}
 		.container{
+			border-radius: 30rpx;
 			background-color: #fff;
-			margin-top:20rpx;
+			margin-top:10rpx;
+			&:last-child{
+				margin-bottom: 20rpx;
+			}
 			.storeInfo{
 				display:flex;
 				align-items: center;
 				height:88rpx;
 				.checkbox{
+					height:34rpx;
+					width:34rpx;
 					margin-left:19rpx;
 					image{
 						height:34rpx;
@@ -776,11 +794,16 @@ page{
 				}
 				.storeTitle{
 					margin-left:10rpx;
+					margin-right: 10rpx;
 					font-size:28rpx;
 					font-family:Source Han Sans CN;
-					font-weight:400;
-					color:rgba(100,100,100,1);
-					line-height:36rpx;
+					font-weight:700;
+					color:#1E1E1E;
+				}
+				.storeArrow{
+					margin-top: 2rpx;
+					width:10rpx;
+					height:17rpx;
 				}
 			}
 			.goodsInfo{
@@ -793,6 +816,7 @@ page{
 				z-index: 4;
 				border: 0;
 				.menu{
+					border-radius: 0 35rpx 35rpx 0;
 					.icon{
 						color:#fff;
 						font-size: 48rpx;
@@ -810,6 +834,7 @@ page{
 				}
 				
 				.carrier{
+					border-radius: 30rpx;
 					@keyframes showMenu {
 						0% {transform: translateX(0);}100% {transform: translateX(-30%);}
 					}
@@ -843,21 +868,21 @@ page{
 						border-radius:10rpx;
 					}
 					.detail{
-						height:140rpx;
+						
 						width:560rpx;
 						padding-left:20rpx;
 						padding-right:20rpx;
 						.title{
-							font-size:24rpx;
+							font-size:28rpx;
 							font-family:Source Han Sans CN;
 							font-weight:400;
-							color:rgba(60,60,60,1);
+							color:#1E1E1E;
 						}
 						.spec{
-							font-size:24rpx;
+							font-size:26rpx;
 							font-family:Source Han Sans CN;
 							font-weight:400;
-							color:rgba(160,160,160,1);
+							color:#969696;
 							margin-top: 10rpx;
 						}
 						.choose{
@@ -865,33 +890,51 @@ page{
 							display: flex;
 							justify-content: space-between;
 							.price{
-								font-size:24rpx;
+								font-size:36rpx;
 								font-family:Source Han Sans CN;
 								font-weight:400;
-								color:rgba(255,102,0,1);
+								color:#FF4E00;
 							}
 							.number{
 								display: flex;
 								.sub{
+									display: flex;
+									align-items: center;
+									justify-content: center;
+									width:50rpx;
+									height:50rpx;
+									background:rgba(236,236,236,1);
+									border-radius:6px 0px 0px 6px;
 									image{
-										height:50rpx;
-										width:50rpx;
+										height:4rpx;
+										width:18rpx;
 									}
 								}
 								.input{
+									background-color: #ECECEC;
 									width:113rpx;
 									height:50rpx;
-									border:1rpx solid rgba(180,180,180,1);
-									border-radius:6rpx;
-									padding-left:50rpx;
-									margin-left: 10rpx;
-									
+									margin:0 5rpx;
+									input{
+										outline: none;
+										border:none;
+										width:100%;
+										height:100%;
+										text-align: center;
+										line-height: 50rpx;
+									}
 								}
 								.add{
-									margin-left: 10rpx;
+									display: flex;
+									align-items: center;
+									justify-content: center;
+									width:50rpx;
+									height:50rpx;
+									background:rgba(236,236,236,1);
+									border-radius:0px 6px 6px 0px;
 									image{
-										height:50rpx;
-										width:50rpx;
+										height:18rpx;
+										width:18rpx;
 									}
 								}
 							}
@@ -1048,6 +1091,7 @@ page{
 	display: flex;
 	justify-content: flex-end;
 	margin-top: 20rpx;
+	align-items: center;
 }
 
 
@@ -1067,10 +1111,12 @@ checkbox .uni-checkbox-input.uni-checkbox-input-checked::before{
 	-webkit-transform: translate(-70%, -50%) scale(1);
 }
 .type{
+	border-radius: 30rpx;
 	margin-top: 20rpx;
 	padding:0 20rpx;
 	background-color: #fff;
 }
+
 
 .list{
 	margin-bottom: 20rpx;

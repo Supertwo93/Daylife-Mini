@@ -1,15 +1,18 @@
 <template>
 	<view>
-		<bavigationbar></bavigationbar>
+		<bavigationbar :firsttype="1"></bavigationbar>
 		<swiper style="height:200rpx;" :swiperImage="swiperImage"></swiper>
 		<view class="chooseType">
-			<view class="title">房屋服务</view>
+			<view class="title">
+				<view class="title-border"></view>
+				<view class="title-content">房屋服务</view>
+			</view>
 			<view class="icon" @tap="pop()">
-				筛选<image src="/static/cut/filter_icon.png"></image>
+				筛选<image src="https://sgz.wdttsh.com/mini_static/cut/triangle-down.png"></image>
 			</view>
 		</view>
 		<block v-for="(row,number) in houseList" :key="number">
-			<item-service :src="row.picture.split(',')[0]" :title="row.title" @tap='toDetail(number)' :distance='row.distance|fixOne'
+			<item-service :isHouse="true" :src="row.picture.split(',')[0]" :title="row.title" @tap='toDetail(number)' :distance='row.distance|fixOne'
 			:money="row.price" :desc="row|meterFilter"></item-service>
 		</block>
 		<uni-load-more :status='status'></uni-load-more>
@@ -78,7 +81,11 @@
 				obj:{
 					pageNo:1,
 					sellerId:'',
-					houseType:''
+					houseType:'',
+					latitude:'',
+					longitude:'',
+					sort:'',
+					secondTypeId:''
 				},
 				typeparams:{
 					firstType :'房屋',
@@ -86,7 +93,7 @@
 				},
 				typeData:[],
 				secondIndex:null,
-				orderItem:['价格升序','价格降序','评分升序','评分降序','距离升序','距离降序'],
+				orderItem:['价格升序','价格降序','距离最近'],
 				orderIndex:null,
 				orderNum:1
 			}
@@ -108,7 +115,7 @@
 				}else{
 					if(this.secondIndex == index){
 						this.secondIndex = null
-						this.secondId = item.secondtypeinfoId
+						this.secondId = ''
 					}else{
 						this.secondIndex = index
 						this.secondId = item.secondtypeinfoId
@@ -130,6 +137,28 @@
 				}
 			},
 			confirmSecond(){
+				this.obj.pageNo = 1
+				if(this.secondIndex==null&&this.orderIndex==null){
+					this.obj.sort = 1
+					this.obj.secondTypeId = ''
+				}else if(this.secondIndex!=null&&this.orderIndex!=null){
+
+					this.obj.sort = this.orderNum
+					this.obj.secondTypeId = this.secondId
+				}else if(this.secondIndex==null&&this.orderIndex!=null){
+					this.obj.sort = this.orderNum
+					this.obj.secondTypeId = ''
+				}else if(this.secondIndex!=null&&this.orderIndex==null){
+					this.obj.sort = 1
+					this.obj.secondTypeId = this.secondId
+				}
+				
+				housemodel.getHouseList(this.obj,(data)=>{
+					this.houseList = data.houseList
+					if(this.houseList.length<10){
+						this.status = 'noMore'
+					}
+				})
 				this.$refs.poptop.close()
 			}
 		},
@@ -148,6 +177,7 @@
 			})
 			
 			housemodel.getHouseSecondType(this.typeparams,(data)=>{
+				console.log(data)
 				this.typeData = data
 			})
 			
@@ -189,25 +219,36 @@ page{
 	height:84rpx;
 	background-color: #fff;
 	padding: 0 20rpx;
+	border-radius: 0 0 30rpx 30rpx;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
 	.title{
-		border-left: 8rpx solid #FF6600;
-		font-size:28rpx;
-		font-weight:400;
-		color:rgba(60,60,60,1);
+		padding-left:10rpx;
+		display: flex;
+		align-items: center;
+		.title-border{
+			margin-right: 13rpx;
+			width:8rpx;
+			height:30rpx;
+			background:rgba(255,102,0,1);
+		}
+		.title-content{
+			font-size:34rpx;
+			font-weight:bold;
+			color:rgba(30,30,30,1);
+		}
 	}
 	.icon{
 		display: flex;
 		align-items: center;
 		font-size:28rpx;
 		font-weight:400;
-		color:rgba(120,120,120,1);
+		color:#ff6600;
 		image{
 			margin-left: 8rpx;
-			width:24rpx;
-			height:26rpx;
+			width:18rpx;
+			height:12rpx;
 		}
 	}
 }

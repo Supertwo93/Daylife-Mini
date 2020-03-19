@@ -1,15 +1,15 @@
 <template>
 	<view>
 		<bavigationbar></bavigationbar>
-		<swiper :swiperImage="swiperImage"></swiper>
+		<swiper style="height:200rpx;" :swiperImage="swiperImage"></swiper>
 		<view class="indexChooseType">
-			<view class="title">会员服务</view>
+			<view class="main-title">{{title}}服务</view>
 			<!-- <view class="icon" @tap="pop()">
 				筛选<image src="/static/cut/filter_icon.png"></image>
 			</view> -->
 		</view>
 		<block v-for="(item,index) in data" :key="index">
-			<item-service :distance="item.distance|fixOne" :src="item.carPic" :title="item.title" :type="item.cardType" :money="item.price" :desc="'办理人数：' + item.totalSale" @tap='toDetail(index)'></item-service>
+			<item-service :isVIP="true" :monthSale="item.stock" :distance="item.distance|fixOne" :src="item.carPic" :title="item.title" :type="item.cardType" :money="item.price" :desc="'办理人数：' + item.totalSale" @tap='toDetail(index)'></item-service>
 		</block>
 	</view>
 </template>
@@ -27,7 +27,7 @@
 			bavigationbar,
 			Swiper,
 			itemService,
-			uniLoadMore
+			uniLoadMore,
 		},
 		filters: {
 			fixOne(value){
@@ -37,13 +37,15 @@
 		data() {
 			return {
 				data:'',
-				swiperImage:[]
+				swiperImage:[],
+				title:''
 			}
 		},
 		computed:{
 			...mapState(['hasLogin','lat','lon'])
 		},
-		onLoad(){
+		onLoad(options){
+			this.title = options.title
 			vipmodel.getVipList({longitude:this.lon,latitude:this.lat},(data)=>{
 				console.log(data)
 				this.data = data
@@ -68,5 +70,11 @@
 <style>
 page{
 	background-color: #f2f2f2;
+}
+
+.main-title{
+	font-size:34rpx;
+	font-weight:bold;
+	color:rgba(30,30,30,1);
 }
 </style>

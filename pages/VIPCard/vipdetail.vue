@@ -7,27 +7,38 @@
 				</swiper-item>
 			</swiper>
 		</view>
-		<provide-title :price="data.price" :spec="'办理人数' + data.totalSale" :title="data.title"></provide-title>
+		<provide-title :price="data.price" :type="4" :spec="data.totalSale" :title="data.title"></provide-title>
+		
+		
+		<view v-if="data.cardType == 3" class="spec" @tap="toSign()">
+			<view class="gray">规格</view>
+			<view class="choose">{{speced}}</view>
+			<image src="/static/cut/grayright.png"></image>
+		</view>
 		
 		<view class="detail">
 			<view class="title">详情</view>
-			<view class="introduction">{{data.introduction}}</view>
+			<view class="introduction">{{data.details}}</view>
 		</view>
 		
 		<view class="store">
 			<image class="storeImg" :src="storeData.logoPic"></image>
-			<view class="storeName">
-				<view>{{storeData.nickName}}</view>
-				<image src="/static/cut/company_cer.png"></image>
+			<view class="rt">
+				<view class="storeName">
+					<view>{{storeData.nickName}}</view>
+					<image src="/static/cut/company_cer.png"></image>
+				</view>
+				<view class="stars">
+					<view class="starlf">
+						<image src="/static/cut/comment-star.png"></image>
+						<view>{{storeData.mainScore}}</view>
+					</view>
+					<view class="starrt">
+						<view class="phone" @tap="phoneToSeller()">拨打电话</view>
+						<view class="into" @tap="toStore()">进店看看</view>
+					</view>
+				</view>
 			</view>
-			<view class="stars">
-				{{storeData.mainScore.toFixed(1)}}
-				<block v-for="(item,index) in starIndex" :key="index">
-					<image :src="storeData.mainScore>index?starSrc:''"></image>
-				</block>
-			</view>
-			<view class="into" @tap="toStore()">进店看看</view>
-			<image class="intoIcon" src="/static/cut/right_orange.png"></image>
 		</view>
 		
 		<view class="bottomFix">
@@ -41,7 +52,7 @@
 				<image src="/static/cut/message.png"></image>
 				<view>联系</view>
 			</view>
-			<view class="theme-button" @tap="toSign()">立即签约</view>
+			<view class="theme-button" @tap="toSign()"><text v-if="data.price==0">免费办理</text><text v-else>立即办理</text></view>
 		</view>
 		
 		<uni-popup ref="popbottom" type="bottom">
@@ -84,6 +95,7 @@ export default{
 			starSrc:'/static/cut/star_on.png',
 			starIndex:[0,1,2,3,4],
 			labelIndex:0,
+			speced:'请选择',
 		}
 	},
 	components: {
@@ -155,6 +167,11 @@ export default{
 				})
 			}
 		},
+		phoneToSeller(){
+			uni.makePhoneCall({
+				phoneNumber:this.storeData.linkmanMobile
+			})
+		},
 		confirmSign(){
 			let handle_id = this.data.tbMemberCardHandleCtivities[this.labelIndex].id;
 			let recharge_id = this.data.tbMemberCardRechargeCtivitieList[this.labelIndex].id;
@@ -167,7 +184,11 @@ export default{
 				uni.navigateTo({
 					url:'/pages/shop/shop?sellerId=' + this.storeData.sellerId
 				})
-			}else{
+			}else if(this.storeData.firstTypeId==1){
+				uni.navigateTo({
+					url:'/pages/shop/storeindex?sellerId=' + this.storeData.sellerId + '&type=1'
+				})
+			}else if(this.storeData.firstTypeId==5){
 				uni.navigateTo({
 					url:'/pages/shop/storeindex?sellerId=' + this.storeData.sellerId
 				})
@@ -180,6 +201,7 @@ export default{
 <style lang="scss">
 page{
 	background-color: #f2f2f2;
+	padding-bottom: 110rpx;
 }	
 .carousel-section{
 	swiper{
@@ -207,60 +229,6 @@ page{
 	}
 }
 
-.store{
-	width:100%;
-	height:160rpx;
-	position: relative;
-	background-color: #fff;
-	margin-bottom: 20rpx;
-	.storeImg{
-		position: absolute;
-		top:30rpx;
-		left:20rpx;
-		width:100rpx;
-		height:100rpx;
-	}
-	.storeName{
-		position: absolute;
-		top:36rpx;
-		left:142rpx;
-		display: flex;
-		align-items: center;
-		view{
-			font-size:34rpx;
-			font-weight:500;
-			color:rgba(60,60,60,1);
-		}
-		image{
-			width:24rpx;
-			height:24rpx;
-		}
-	}
-	.stars{
-		position: absolute;
-		top:100rpx;
-		left:142rpx;
-		color:#FF6600;
-		image{
-			width:25rpx;
-			height:23rpx;
-		}
-	}
-	.into{
-		position: absolute;
-		top:108rpx;
-		right:40rpx;
-		color:#FF6600;
-		font-size:24rpx;
-	}
-	.intoIcon{
-		position: absolute;
-		top:115rpx;
-		right:20rpx;
-		width:10rpx;
-		height:19rpx;
-	}
-}
 
 
 .bottomFix{
@@ -303,6 +271,28 @@ page{
 		
 	}
 }
+
+.spec{
+	background-color: #fff;
+	margin:20rpx 0;
+	height:84rpx;
+	display: flex;
+	align-items: center;
+	image{
+		width:10rpx;
+		height:20rpx;
+	}
+	.gray{
+		margin-left: 20rpx;
+	}
+	.choose{
+		margin-left: 30rpx;
+	}
+	image{
+		margin-left: 540rpx;
+	}
+}
+
 
 .popBox{
 	padding:20rpx;

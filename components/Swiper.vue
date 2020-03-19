@@ -1,6 +1,9 @@
 <template>
 	  <view class="carousel-section">
 		  <swiper circular="true" autoplay="true" @change="changeSwiper">
+			<swiper-item v-if="videoSrc!==null" :key="index">
+				<video :src="videoSrc"></video>
+			</swiper-item>
 			<swiper-item v-for="(item,index) in swiperImage" :key="index">
 				<image class="swiper-img" :src="item" mode=""></image>
 			</swiper-item>
@@ -22,6 +25,9 @@ export default {
   props: {
 		swiperImage:{
 			type:Array,
+			value:''
+		},
+		videoSrc:{
 			value:''
 		}
   },

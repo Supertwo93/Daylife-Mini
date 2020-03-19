@@ -20,13 +20,18 @@
 					<view class='status'>待支付</view>
 				</view>
 				<view class="billdetail">
-					<block v-for="(row,number) in item.costList" :key="number">
-						<view v-if="row.costPrice!=0">{{row.costName}}：￥{{row.costPrice}}</view>
-					</block>
+					<image class="billImage" src="https://sgz.wdttsh.com/mini_static/cut/bill-none.png"></image>
+					<view class="billBox">
+						<view v-if="row.costPrice!=0" v-for="(row,number) in item.costList" :key="number" class="costItem">
+							<view class="billName">{{row.costName}}</view>
+							<view class="billLine">------------------</view>
+							<view class="billCost">￥{{row.costPrice}}</view>
+						</view>
+					</view>
 				</view>
 				<view class="billtotal">
 					<view class="total">应缴金额：<text>￥{{item.sum}}</text></view>
-					<view @tap.stop="toPay(item)" class="whiteButton">去付款</view>
+					<view @tap.stop="toPay(item)" class="billButton">去付款</view>
 				</view>
 			</view>
 		</view>
@@ -37,9 +42,14 @@
 					<view class='paidstatus'>已支付</view>
 				</view>
 				<view class="billdetail">
-					<block v-for="(row,number) in item.costList" :key="number">
-						<view v-if="row.costPrice!=0">{{row.costName}}：￥{{row.costPrice}}</view>
-					</block>
+					<image class="billImage" src="https://sgz.wdttsh.com/mini_static/cut/bill-none.png"></image>
+					<view class="billBox">
+						<view v-if="row.costPrice!=0" v-for="(row,number) in item.costList" :key="number" class="costItem">
+							<view class="billName">{{row.costName}}</view>
+							<view class="billLine">------------------------</view>
+							<view class="billCost">￥{{row.costPrice}}</view>
+						</view>
+					</view>
 				</view>
 				<view class="billedtotal">
 					<view class="total">实缴金额：<text>￥{{item.sum}}</text></view>
@@ -141,6 +151,7 @@ page{
 .unpaid{
 	margin-top: 84rpx;
 	.item{
+		border-radius: 30rpx;
 		margin-top: 20rpx;
 		background-color: #fff;
 		padding: 39rpx 19rpx 0 19rpx;
@@ -150,24 +161,46 @@ page{
 			.title{
 				font-size:28rpx;
 				font-weight:400;
-				color:rgba(60,60,60,1);
-				line-height:36rpx;
+				color:#1E1E1E;
 			}
 			.status{
-				font-size:24rpx;
+				font-size:28rpx;
 				font-weight:400;
 				color:rgba(255,0,0,1);
-				line-height:40rpx;
 			}
 		}
 		.billdetail{
+			display: flex;
 			margin-top:39rpx;
-			border-bottom: 1rpx solid #f2f2f2;
-			view{
-				font-size:24rpx;
-				font-weight:400;
-				color:rgba(100,100,100,1);
-				line-height:54rpx;
+			.billImage{
+				width:150rpx;
+				height:150rpx;
+				margin-right: 20rpx;
+			}
+			.billBox{
+				.costItem{
+					margin-bottom: 30rpx;
+					align-items: center;
+					display: flex;
+					.billName{
+						width:120rpx;
+						font-size:26rpx;
+						font-family:Source Han Sans CN;
+						font-weight:400;
+						color:rgba(80,80,80,1);
+					}
+					.billLine{
+						width:330rpx;
+						font-size:26rpx;
+						font-family:Source Han Sans CN;
+						font-weight:400;
+						color:rgba(180,180,180,1);
+					}
+					.billCost{
+						color:rgba(80,80,80,1);
+					}
+				}
+				
 			}
 		}
 		.billtotal{
@@ -176,12 +209,24 @@ page{
 			align-items: center;
 			height: 100rpx;
 			.total{
-				color:#a0a0a0;
-				font-size:24rpx;
+				color:#646464;
+				font-size:26rpx;
 				text{
-					color:#FF6600;
-					font-size:30rpx;
+					font-size:36rpx;
+					font-family:Source Han Sans CN;
+					font-weight:400;
+					color:rgba(30,30,30,1);
 				}
+			}
+			.billButton{
+				width:160rpx;
+				height:60rpx;
+				background:linear-gradient(90deg,rgba(255,145,48,1),rgba(255,102,0,1));
+				border-radius:30rpx;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				color:#fff;
 			}
 		}
 	}
@@ -193,18 +238,18 @@ page{
 	align-items: center;
 	height: 100rpx;
 	.total{
-		color:#a0a0a0;
-		font-size:24rpx;
+		color:#646464;
+		font-size:26rpx;
 		text{
-			color:#FF6600;
-			font-size:30rpx;
+			color:#1E1E1E;
+			font-size:36rpx;
 		}
 	}
 }
 .paidstatus{
-	font-size:24rpx;
+	font-size:28rpx;
 	font-weight:400;
-	color:rgba(160,160,160,1);
+	color:#8C8C8C;
 	line-height:40rpx;
 }
 

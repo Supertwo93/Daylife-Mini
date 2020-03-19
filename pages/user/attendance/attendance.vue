@@ -43,13 +43,12 @@
 			
 			<view class="rules">
 				<view class="title">签到积分规则</view>
-				<view class="text1">1、每日签到获得10积分，积分累计可兑换余额。</view>
-				<view class="text2"> 2、累计签到第7天额外获得20积分，第14天额外获得30积分，第21天额外获得40积分依次叠加。</view>
+				<view style="padding:0 20rpx;">{{rules}}</view>
+				<!-- <view class="text1">1、第1天签到得5分,第2天签到得10分,第3天签到得15分,第4天签到得20分。</view>
+				<view class="text2"> 2、连续签到4天后,每日签到获得积分都为20分。</view>
+				<view class="text2">3、连续签到中断,则从第1天重新开始累计。</view> -->
 			</view>
 			
-			<image class="pointIcon1" src="/static/cut/积分icon-大.png"></image>
-			<view class="bottomTitle">积分可抵商品</view>
-			<image class="pointIcon2" src="/static/cut/积分icon-大.png"></image>
 		</view>
 		
 		<view class="signBox" :class="isShow?'':'none'">
@@ -59,12 +58,17 @@
 			<image @tap="closeShow" src="https://sgz.wdttsh.com/mini_static/cut/iknow.png"></image>
 		</view>
 		
+		<view v-if="isAttendance==1" class="bottomButton">今日已签到，明日再来</view>
+		<view @tap="confirmSign" v-else class="bottomButton">签到</view>
+		
 	</view>
 </template>
 
 <script>
 	import {CheckModel} from '../../../common/models/check.js';
-	let checkModel = new CheckModel();
+	let checkModel = new CheckModel()
+	import {UserModel} from '@/common/models/user.js'
+	const usermodel = new UserModel()
 	import {mapState,mapMutations} from 'vuex';  
 	export default {
 		data() {
@@ -81,14 +85,21 @@
 				isClick: 0,
 				store:'',
 				todayStore:'',
-				isShow:false
+				isShow:false,
+				isAttendance:'',
+				rules:''
 			}
 		},
 		computed: {
-			...mapState(['myScore','signCount'])
+			...mapState(['myScore','signCount','uerInfo'])
 		},  
 		onLoad:function(){
-			
+			checkModel.getCheckRule({},data=>{
+				this.rules = data
+			})
+			usermodel.getInfo(data=>{
+				this.isAttendance = data.isTodaySign
+			})
 			
 			this.year = this.today.getFullYear();
 			this.month = this.today.getMonth() + 1;
@@ -117,6 +128,34 @@
 			...mapMutations(['myScoreAdd','signCountAdd','signCountZero']),
 			closeShow(){
 				this.isShow = false
+				this.isAttendance=1
+			},
+			confirmSign(){
+				checkModel.getSignIn((data)=>{
+					this.isClick = 1;
+					console.log(data);
+					this.todayStore = data
+					this.$api.msg(data.data);
+					this.dateArr[this.day-1].sign = 1;
+					this.isShow = true
+					this.myScoreAdd();
+					
+					if(this.checkArr.continuityDays == 0){
+						// this.signCount = 0;
+						this.signCountZero();
+					}
+					// 判断是否连续签到7天以上
+					if(this.checkArr.continuityDays!=0 && this.checkArr.continuityDays%7 == 0){
+						//每累计7天的次数 7=>1  14=>2  21=>3
+						// this.signCount++;
+						//计算每累计签到7天 额外多获得10积分
+						// this.myScore = this.myScore + (10+this.signCount*10);
+						this.signCountAdd();
+					}
+					console.log(this.signCount,this.myScore);
+					this.getCalendar(this.year,this.month);
+					this.isAttendance = 1
+				})
 			},
 			isLeap(){
 				const year = this.year;
@@ -159,6 +198,7 @@
 				let years = [];
 				let months = [];
 				let days = [];
+				let integrals = [];
 					
 				checkModel.getSignSelect({year:cYear,month:cMonth},(data)=>{
 					console.log(data);
@@ -166,13 +206,15 @@
 					
 					for(var c=0;c<len;c++){
 						if(data.signList[c] != undefined){
-							years.push(data.signList[c].createTime.substring(0,4));
-							months.push(data.signList[c].createTime.substring(5,7));
-							days.push(data.signList[c].createTime.substring(8,10));
+							years.push(data.signList[c].createTime.substring(0,4))
+							months.push(data.signList[c].createTime.substring(5,7))
+							days.push(data.signList[c].createTime.substring(8,10))
+							integrals.push(data.signList[c].integral)
 						}else{
-							years.push(0);
-							months.push(0);
-							days.push(0);
+							years.push(0)
+							months.push(0)
+							days.push(0)
+							integrals.push(0)
 						}
 					}
 					// console.log(years,months,days);
@@ -184,7 +226,7 @@
 						arr.push({
 							num: i,
 							sign: 0,
-							count: 20
+							count: 5
 						})
 						
 						if(this.year <= this.today.getFullYear() && this.month <= this.today.getMonth()+1 && arr[i-1].num < this.day){
@@ -194,12 +236,12 @@
 						}else{
 							arr[i-1].sign = 0
 						}
-						
 						// console.log(years[i-1],parseInt(months[i-1]),parseInt(days[i-1]));
 						
 						for(var j=0;j<data.signList.length;j++){
 							if(years[j] == this.year && parseInt(months[j]) == this.month && parseInt(days[j]) == arr[i-1].num){
 								arr[i-1].sign = 1;
+								arr[i-1].count = integrals[j]
 								// console.log(this.year,this.month,arr[i-1].num);
 								// arr.push({
 								// 	num: i,
@@ -210,6 +252,7 @@
 						
 					}
 					this.dateArr = arr;
+					console.log(this.dateArr)
 				})
 			},
 			preMonth(){
@@ -292,6 +335,7 @@
 <style lang="scss">
 page{
 	background-color: #f2f2f2;
+	padding-bottom:100rpx;
 }
 .calendarContainer{
 	width:100%;
@@ -544,5 +588,20 @@ page{
 		margin-left: 160rpx;
 		margin-top: 39rpx;
 	}
+}
+
+
+.bottomButton{
+	font-size:32rpx;
+	color:white;
+	z-index:11111;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	position: fixed;
+	bottom: 0;
+	width:750rpx;
+	height:100rpx;
+	background:linear-gradient(90deg,rgba(255,145,48,1),rgba(255,102,0,1));
 }
 </style>

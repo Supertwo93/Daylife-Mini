@@ -3,22 +3,25 @@
 		<bavigationbar :firsttype="type"></bavigationbar>
 		<Swiper style="height:200rpx;" :swiperImage="swiperImg"></Swiper>
 		<view class="chooseType">
-			<view class="title">{{position}}服务</view>
+			<view class="title">
+				<view class="title-border"></view>
+				<view class="title-content">{{position}}服务</view>
+			</view>
 			<view class="icon" @tap="pop()">
-				筛选<image src="/static/cut/filter_icon.png"></image>
+				筛选<image src="https://sgz.wdttsh.com/mini_static/cut/triangle-down.png"></image>
 			</view>
 		</view>
 		<block v-if="type==8||type==10">
 			<block v-for="(item,index) in data" :key="index">
 				<item-list :src="item.smallPic" :money="item.price" 
-				:title="item.goodsName|titleFormat" :deliver="item.postFee" :sales="item.monthSale"
+				:title="item.goodsName|titleFormat"  :deliver="item.postFee" :sales="item.monthSale"
 				@tap="toDetail(item)" v-on:addcart="addToCart(item)" :distance="item.distance|fixOne"></item-list>
 			</block>
 		</block>
 		
 		<block v-if="type==3||type==9">
 			<block v-for="(item,index) in data" :key="index">
-				<item-service :src="item.smallPic" :money="item.price" 
+				<item-service :src="item.smallPic" :monthSale="item.monthSale" :money="item.price" 
 				:title="item.goodsName|titleFormat" :deliver="item.postFee" :sales="item.monthSale"
 				:distance="item.distance|fixOne" @tap="toDetail(item)"></item-service>
 			</block>
@@ -91,7 +94,7 @@ export default {
 				latitude:'',
 				longitude:'',
 				goodsSecondtype:'',
-				sort:1
+				sort:''
 			},
 			data:'',
 			type:'',
@@ -102,8 +105,8 @@ export default {
 			secondIndex:null,
 			orderIndex:null,
 			secondId:'',
-			orderItem:['价格升序','价格降序','评分升序','评分降序','距离升序','距离降序'],
-			orderNum:1,
+			orderItem:['价格升序','价格降序','距离最近'],
+			orderNum:5,
 		}
 	},
 	onLoad(options) {
@@ -239,7 +242,7 @@ export default {
 			}else{
 				if(this.orderIndex == index){
 					this.orderIndex = null
-					this.orderNum = 1
+					this.orderNum = 5
 				}else{
 					this.orderIndex = index
 					this.orderNum = parseInt(index) + 1
@@ -248,7 +251,12 @@ export default {
 		},
 		confirmSecond(item){
 			if(this.secondIndex==null&&this.orderIndex==null){
-				
+				this.dataReq.goodsSecondtype = ''
+				this.dataReq.sort = 5
+				this.dataReq.pageNo = 1
+				providemodel.getItemList(this.dataReq,(data)=>{
+					this.data = data
+				})
 			}else if(this.secondIndex!=null||this.orderIndex!=null){
 				this.dataReq.goodsSecondtype = this.secondId
 				this.dataReq.sort = this.orderNum
@@ -273,26 +281,37 @@ page{
 	height:84rpx;
 	background-color: #fff;
 	padding: 0 20rpx;
+	border-radius: 0 0 30rpx 30rpx;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
 	.title{
-		border-left: 8rpx solid #FF6600;
 		padding-left:10rpx;
-		font-size:28rpx;
-		font-weight:400;
-		color:rgba(60,60,60,1);
+		display: flex;
+		align-items: center;
+		.title-border{
+			margin-right: 13rpx;
+			width:8rpx;
+			height:30rpx;
+			background:rgba(255,102,0,1);
+		}
+		.title-content{
+			font-size:34rpx;
+			font-weight:bold;
+			color:rgba(30,30,30,1);
+		}
 	}
 	.icon{
 		display: flex;
 		align-items: center;
 		font-size:28rpx;
+		font-family:Source Han Sans CN;
 		font-weight:400;
-		color:rgba(120,120,120,1);
+		color:rgba(255,102,0,1);
 		image{
-			margin-left: 8rpx;
-			width:24rpx;
-			height:26rpx;
+			margin-left: 10rpx;
+			width:18rpx;
+			height:12rpx;
 		}
 	}
 }

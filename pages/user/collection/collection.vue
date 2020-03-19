@@ -26,8 +26,8 @@
 							</view>
 						</view>
 						
-						<view class="like" @tap.stop="delCollectGoods(row)">
-							<image src="/static/cut/collected.png"></image>
+						<view class="like" >
+							<image @tap.stop="delCollectGoods(row)" src="/static/cut/collected.png"></image>
 						</view>
 					</view>
 				</block>
@@ -67,8 +67,8 @@
 								<view>{{item.mainScore}}</view>
 							</view>
 						</view>
-						<view class="like" @tap="delCollectShop(item.sellerId)">
-							<image src="/static/cut/collected.png"></image>
+						<view class="like">
+							<image  @tap.stop="delCollectShop(item.sellerId)" src="/static/cut/collected.png"></image>
 						</view>
 					</view>
 				</block>
@@ -104,8 +104,8 @@
 							</view>
 						</view>
 						
-						<view class="like" @tap="delCollectCard(row.cardId)">
-							<image src="/static/cut/collected.png"></image>
+						<view class="like">
+							<image @tap.stop="delCollectCard(row.cardId)" src="/static/cut/collected.png"></image>
 						</view>
 					</view>
 				</block>
@@ -132,7 +132,7 @@ export default{
 			tabbarIndex:0,
 			headerPosition:"fixed",
 			headerTop:"0px",
-			collectionType:['提供','店铺','会员卡'],
+			collectionType:['商品','店铺','会员卡'],
 			provideList:[],
 			needList:[],
 			storeList:[],

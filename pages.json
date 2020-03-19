@@ -4,7 +4,8 @@
 			"path": "pages/index/index",
 			"style": {
 				"navigationBarTitleText": "天天生活",
-				"navigationBarBackgroundColor":"#FFFFFF"
+				"navigationBarBackgroundColor":"#FFFFFF",
+				"enablePullDownRefresh":true
 			}
 		},
 		{
@@ -34,6 +35,18 @@
 					"titleNView": false ,
 					"bounce":"none"
 				}
+			}
+		},
+		{
+			"path":"pages/index/webNavigation",
+			"style" : {
+				"navigationBarTitleText": "门户导航"
+			}
+		},
+		{
+			"path":"pages/index/feedback",
+			"style" : {
+				"navigationBarTitleText": "建议有奖"
 			}
 		},
 		{
@@ -114,6 +127,12 @@
 			}
 		},
 		{
+		    "path" : "pages/msg/systempage",
+		    "style" : {
+				"navigationBarTitleText": "系统消息"
+			}
+		},
+		{
 		    "path" : "pages/login/retrievepasswrod",
 		    "style" : {
 				"navigationBarTitleText": "找回密码"
@@ -128,6 +147,7 @@
 		{
 			"path": "pages/order/confirmation",
 			"style": {
+				"navigationBarBackgroundColor":"#ffffff",
 				"navigationBarTitleText": "确认订单"
 			}
 		},
@@ -193,6 +213,14 @@
 				"navigationBarTitleText": "订单详情",
 				"navigationBarBackgroundColor":"#FFFFFF"
 			}
+		},
+		{
+			"path":"pages/settings/privacy",
+			"style":{
+				"navigationBarTitleText":"隐私政策",
+				"navigationBarBackgroundColor":"#FFFFFF"
+			}
+			
 		},
 		{
 		    "path" : "pages/provide/index",
@@ -676,7 +704,43 @@
 				"navigationBarTitleText": "扫描结果",
 				"navigationBarBackgroundColor":"#FFFFFF"
 			}
+		},
+		{
+		    "path" : "pages/user/card/flowList",
+		    "style" : {
+				"navigationBarTitleText": "消费流水记录",
+				"navigationBarBackgroundColor":"#FFFFFF"
+			}
+		},
+		{
+		    "path" : "pages/user/card/flowDetail",
+		    "style" : {
+				"navigationBarTitleText": "消费流水详情",
+				"navigationBarBackgroundColor":"#FFFFFF"
+			}
+		},
+		{
+			"path" : "pages/user/card/pointRecord",
+			"style" : {
+				"navigationBarTitleText": "积分记录",
+				"navigationBarBackgroundColor":"#FFFFFF"
+			}
+		},
+		{
+			"path" : "pages/user/card/pointRule",
+			"style" : {
+				"navigationBarTitleText": "积分规则",
+				"navigationBarBackgroundColor":"#FFFFFF"
+			}
+		},
+		{
+			"path" : "pages/user/card/cardCharge",
+			"style" : {
+				"navigationBarTitleText": "会员充值",
+				"navigationBarBackgroundColor":"#FFFFFF"
+			}
 		}
+		
     ],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",

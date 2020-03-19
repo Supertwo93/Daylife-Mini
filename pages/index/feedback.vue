@@ -1,13 +1,13 @@
 <template>
 	<view>
 		<view class="explain">
-			<view class="text1">感谢您对我们平台提出的宝贵意见，您的建议对我们</view>
-			<view class="text2">非常重要，我们将积极采纳并做出调整和反馈</view>
+			<view class="text1 text">欢迎天天生活的小伙伴提出宝贵的意见，一经采</view>
+			<view class="text2 text">纳，可获得10到100元的奖励噢！</view>
 		</view>
 		
-		<textarea v-model="data" placeholder="请输入您的宝贵意见" />
+		<textarea v-model="data" placeholder="请输入您的宝贵意见或建议" />
 		<view class="choose-photo">选择图片</view>
-		
+
 		<view class="upload_img_box">
 			<image class="upload_icon" v-if="hasUpload==0" :src="pictureSrc" @tap="selectPhoto"></image>
 			<view v-if="hasUpload==1" class="image_item">
@@ -86,6 +86,7 @@
 				}
 				let req = {}
 				req.content = this.data
+				req.type = 1
 				if(this.hasUpload == 1){
 					req.img = this.uploadSrc
 				}
@@ -129,7 +130,7 @@ textarea{
 	font-size:26rpx;
 	font-family:Source Han Sans CN;
 	font-weight:400;
-	// color:#ff6600;
+	color:#ff6600;
 	line-height:40rpx;
 }
 
@@ -140,11 +141,11 @@ textarea{
 }
 
 .text1{
-	margin:39rpx 63rpx 0 63rpx;
+	margin:39rpx 63rpx 0 120rpx;
 }
 
 .text2{
-	margin:0 0rpx 0 83rpx;
+	margin:0 0rpx 0 170rpx;
 }
 
 .upload_img_box{

@@ -1,32 +1,34 @@
 <template>
 	<view>
-		<image class="icon" src="/static/cut/stan.png"></image>
-		<image class="code" src="https://sgz.wdttsh.com/mini_static/cut/bigcode.png"></image>
-		<view class="number">7654 3748 4161</view>
+		<image class="icon" :src="data.logoPic"></image>
+		<image class="code" :src="url"></image>
+		<view class="number">{{data.cardNo}}</view>
 		<view class="text">请出示会员支付码</view>
-		<view class="scan">
-			<image @tap="scan" src="/static/cut/scan.png"></image>
-		</view>
 	</view>
 	
 
 </template>
 
 <script>
+	import {UserModel} from '@/common/models/user.js'
+	const usermodel = new UserModel()
 	export default{
 		data(){
 			return{
-				
+				id:'',
+				url:'',
+				data:''
 			}
 		},
+		onLoad(options){
+			this.id = options.id
+			this.data = JSON.parse(options.data)
+			usermodel.getQRCode({id:this.id},data=>{
+				this.url = data
+			})
+		},
 		methods:{
-			scan(){
-				uni.scanCode({
-					success: (res) => {
-						console.log(res)
-					}
-				})
-			}
+			
 		}
 	}
 </script>
@@ -55,7 +57,7 @@
 	color:rgba(60,60,60,1);
 	line-height:36rpx;
 	top:785rpx;
-	left:243rpx;
+	left:153rpx;
 }
 .text{
 	position: absolute;

@@ -5,17 +5,19 @@
 		</view>
 		<view class="rg">
 			<view class="toprg">
-				<view class="title">{{title}}</view>
-				<view class="distance">{{distance}}km</view>
+				<view class="title">{{title}}</view>				
+			</view>
+			<view class="middle">
+				<view v-if="deliver!=0" class="deliver">配送费￥{{deliver}}</view>
+				<view v-if="deliver==0" class="noDeliver">免配送费</view>
+				<view class="deliver">月售{{sales}}</view>
 			</view>
 			<view class="bottom">
 				<view class="money">
 					<view class="icon"></view>
 					<view class="number">￥{{money}}</view>
 				</view>
-				<view class="sales">月售{{sales}}</view>
-				<view v-if="deliver!=0" class="deliver">配送费￥{{deliver}}</view>
-				<view v-if="deliver==0" class="noDeliver">免配送费</view>
+				<view class="distance">距离{{distance}}km</view>
 				<image src="https://sgz.wdttsh.com/mini_static/cut/car.png" class="cartImg" @tap.stop="childrenTap"></image>
 			</view>
 		</view>
@@ -67,16 +69,17 @@ export default {
 
 <style scoped lang="scss">
 .item{
+	border-radius: 30rpx;
 	margin-top: 10rpx;
 	width:750rpx;
-	height:220rpx;
+	height:190rpx;
 	background-color: #fff;
-	padding:30rpx 20rpx 30rpx 20rpx;
+	padding:20rpx;
 	display: flex;
 	.lf{
 		.goodImg{
-			width:160rpx;
-			height:160rpx;
+			width:150rpx;
+			height:150rpx;
 			border-radius:10rpx;
 		}
 	}
@@ -87,22 +90,44 @@ export default {
 		flex-direction: column;
 		justify-content: space-between;
 		.toprg{
-			display: flex;
-			justify-content: space-between;
 			.title{
-				width:400rpx;
-				font-size:26rpx;
+				font-size:30rpx;
 				font-weight:400;
-				color:rgba(60,60,60,1);
-				line-height:40rpx;
+				color:#1e1e1e;
+				overflow : hidden;
+				text-overflow: ellipsis;
+				display: -webkit-box;
+				-webkit-line-clamp: 1;
+				-webkit-box-orient: vertical;
+				word-wrap: break-word;
+				word-break: break-all;
 			}
-			.distance{
-				font-size:24rpx;
-				font-weight:400;
-				color:rgba(120,120,120,1);
+		}
+		.middle{
+			display: flex;
+			.noDeliver{
+				margin-right: 10rpx;
+				font-size:22rpx;
+				height:30rpx;
+				line-height: 30rpx;
+				padding:0 5rpx;
+				color:rgba(255,102,0,1);
+				border:1rpx solid rgba(255,102,0,1);
+				border-radius:6rpx;
+			}
+			.deliver{
+				margin-right:10rpx;
+				font-size:22rpx;
+				height:30rpx;
+				line-height: 30rpx;
+				padding:0 5rpx;
+				color:rgba(160,160,160,1);
+				border:1rpx solid rgba(160,160,160,1);
+				border-radius:6rpx;
 			}
 		}
 		.bottom{
+			// margin-top: 20rpx;
 			display: flex;
 			justify-content: space-between;
 			align-items: flex-end;

@@ -2,22 +2,17 @@
 	<view>
 		<!-- 收货地址 -->
 		<view class="addr" @tap="selectAddress">
-			<view class="icon">
-				<image src="../../static/cut/address_on.png" mode=""></image>
-			</view>
-			<view class="right" v-if="recinfo.receiverName">
-				<view class="tel-name">
-					<view class="name">
-						{{recinfo.receiverName}}
-					</view>
-					<view class="tel">
-						{{recinfo.receiverPhone}}
-					</view>
+			<view class="container" v-if="recinfo.receiverName">
+				<view class="top">
+					<text v-if="recinfo.setDefaultAddress==1" class="default">默认</text>
+					<text>{{recinfo.receiverProvince}} {{recinfo.receiverCity}} {{recinfo.receiverDistrict}}</text>
 				</view>
-				<view class="addres">
-					{{recinfo.receiverProvince}} {{recinfo.receiverCity}} {{recinfo.receiverDistrict}}
-					{{recinfo.receiverAddress}}
+				<view class="middle">
+					<view>{{recinfo.receiverAddress}}</view>
+					<image src="https://sgz.wdttsh.com/mini_static/cut/black-arrow.png"></image>
 				</view>
+				<view class="bottom">{{recinfo.receiverName}}<text>{{recinfo.receiverPhone}}</text></view>
+				<image class="border" src="https://sgz.wdttsh.com/mini_static/cut/dash-border.png"></image>
 			</view>
 			<view class="item" v-else>还没添加地址，去<text>添加地址</text>吧~ </view>
 		</view>
@@ -33,48 +28,57 @@
 			</hTimePicker>
 		</view>
 		
-		
-		<!-- 购买商品列表 -->
-		<view class="itemList">
-			<view class="row" v-for="(row,index) in buylist" :key="index">
-				<view class="store">
-					<image src="/static/cut/dpicon.png"></image>
-					<view class="title">{{row.sellerName}}</view>
-				</view>
-				<view class="item" v-for="(item,number) in row.orderItemList" :key="number">
-					<view class="imgContainer">
-						<image :src="item.picPath"></image>
-					</view>
-					<view class="itemContainer">
-						<view class="itemTop">
-							<view class="title">{{item.title.substring(0,20) + '...'}}</view>
-							<view class="money">{{item.price}}</view>
-						</view>
-						<view class="itemBottom">
-							<view class="spec">{{item.spec}}</view>
-							<view class="num">×{{item.num}}</view>
-						</view>
-					</view>
-				</view>
-				<view v-if="firstTypeId==8||firstTypeId==10" class="otherFee">
-					<view class="title gray">配送(运费)</view>
-					<view class="post">{{row.postFee}}</view>
-				</view>
+<!-- 
+
 				<view v-if='id==10' class="otherFee">
 					<view class="title gray">进口税</view>
 					<view class="post">{{row.orderItemList[0].importPrice}}</view>
 				</view>
 				<view class="total">
 					<view class="fee">合计：<text>￥{{row.payment}}</text></view>
+				</view> -->
+
+	
+
+
+		<view class="goodsList">
+			<view class="row" v-for="(row,index) in buylist" :key="index">
+				<view class="store-top">
+					<image src="https://sgz.wdttsh.com/mini_static/cut/black-store.png"></image>
+					<view class="title">{{row.sellerName}}</view>
 				</view>
-				<view class="remarks">
-					<text>给卖家留言：</text> <input v-model="row.val" placeholder="请输入" />
+				<view class="item" v-for="(item,number) in row.orderItemList" :key="number">
+					<image :src="item.picPath"></image>
+					<view class="item-detail">
+						<view class="item-title">{{item.title}}</view>
+						<view class="item-spec">
+							<view class="spec">{{item.spec}}</view>
+							<view class="num">×{{item.num}}</view>
+						</view>
+						<view class="item-price">￥{{item.price}}</view>
+					</view>
+				</view>
+				<view v-if="firstTypeId==8||firstTypeId==10" class="other_cost">
+					<view class="title">其他费用</view>
+					<view class="post">
+						<view class="post_title">运费</view>
+						<view class="post_fee">￥{{row.postFee}}</view>
+					</view>
+				</view>
+				<view class="other_cost">
+					<view class="title">订单备注</view>
+					<view class="post">
+						<input type="text" placeholder="选填,建议备注前先与商家沟通确认" v-model="row.val">
+					</view>
 				</view>
 			</view>
 		</view>
-
-		<view @click="sub" class="submit-button">确认支付￥{{sumPrice}}</view>
+			
 		
+		
+		<!-- <view @click="sub" class="submit-button">确认支付</view> -->
+		
+		<view @click="sub" class="sub_bottom"><text class="total">合计：</text><text class="price">￥{{sumPrice}}</text><view class="sub_button">立即支付</view></view>
 	</view>
 </template>
 
@@ -133,6 +137,7 @@
 				key:'selectAddress',
 				success: (e) => {
 					this.recinfo = e.data;
+					console.log(this.recinfo)
 					uni.removeStorage({
 						key:'selectAddress'
 					})
@@ -290,40 +295,62 @@ page{
 	padding-bottom: 100rpx;
 }	
 .addr{
-	background-color: #FFFFFF;
-	padding: 37upx 20upx;
-	margin: 30upx auto 20upx auto;
-	display: flex;
-	align-items: center;
-	.icon{
-		width: 80upx;
-		height: 80upx;
-		display: flex;
-		align-items: center;
-		image{
-			width: 51upx;
-			height: 60upx;
+	background-color: #fff;
+	border-radius: 0 0 30rpx 30rpx;
+	padding:30rpx;
+	position: relative;
+	.container{
+		.top{
+			.default{
+				margin-right: 10rpx;
+				width:56rpx;
+				height:26rpx;
+				background:rgba(255,102,0,1);
+				border-radius:4rpx;
+				color:#fff;
+				font-size:22rpx;
+			}
+			font-size:28rpx;
+			color:#1e1e1e;
 		}
-	}
-	.tel-name{
-		width: 100%;
-		display: flex;
-		font-size: 32upx;
-		.tel{
-			margin-left: 40upx;
+		.middle{
+			margin: 15rpx 0;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			view{
+				font-size:32rpx;
+				color:rgba(30,30,30,1);
+				width:620rpx;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+			image{
+				width:11rpx;
+				height:19rpx;
+			}
+		}
+		.bottom{
+			color:#1E1E1E;
+			text{
+				margin-left: 26rpx;
+			}
+		}
+		.border{
+			height:4rpx;
+			position: absolute;
+			bottom:0;
+			width:690rpx;
 		}
 	}
 	.item{
+		background-color: #fff;
 		color:rgba(160,160,160,1);
 		text{
 			font-size: 32upx;
 			color: $theme-text-color;
 		}
-	}
-	.addres{
-		width: 100%;
-		font-size: 26upx;
-		color: #999;
 	}
 }
 
@@ -391,98 +418,6 @@ page{
 	}
 }
 
-.itemList{
-	background-color: #fff;
-	.row{
-		.store{
-			padding-left: 20rpx; 
-			display: flex;
-			align-items: center;
-			height:90rpx;
-			image{
-				width:32rpx;
-				height:29rpx;
-			}
-			.title{
-				margin-left: 10rpx;
-			}
-		}
-		.item{
-			width:100%;
-			height:80rpx;
-			margin-bottom: 30rpx;
-			display: flex;
-			.imgContainer{
-				width:80rpx;
-				height:80rpx;
-				padding: 14rpx;
-				margin-left: 20rpx;
-				background-color: #F7F7F7;
-				image{
-					width:52rpx;
-					height:52rpx;
-				}
-			}
-			.itemContainer{
-				height:80rpx;
-				margin-left: 20rpx;
-				.itemTop{
-					height:40rpx;
-					width:610rpx;
-					display: flex;
-					justify-content: space-between;
-				}
-				.itemBottom{
-					height:40rpx;
-					width:610rpx;
-					display: flex;
-					justify-content: space-between;
-					font-size:22rpx;
-					color:rgba(160,160,160,1);
-				}
-			}
-		}
-		.otherFee{
-			display: flex;
-			justify-content: space-between;
-			height:40rpx;
-			align-items: center;
-			.title{
-				margin-left: 20rpx;
-			}
-			.post{
-				margin-right: 20rpx;
-			}
-		}
-		.total{
-			display: flex;
-			height:60rpx;
-			justify-content: flex-end;
-			align-items: center;
-			width:100%;
-			border-bottom: 1rpx solid #F2F2F2;
-			.fee{
-				margin-right: 20rpx;
-				text{
-					color:#FF6600;
-				}
-			}
-		}
-		.remarks{
-			display: flex;
-			margin-left: 20rpx;
-			align-items: center;
-			height: 104rpx;
-			border-top: 1rpx solid rgba(220,220,220,1);
-			font-weight:400;
-			color:rgba(100,100,100,1);
-			input{
-				flex: 1;
-				font-size: 26rpx;
-			}
-		}
-	}
-}
 
 .appointment{
 	width:750rpx;
@@ -502,5 +437,112 @@ page{
 		}
 	}
 }
+
+
+.goodsList{
+	margin-top: 20rpx;
+	.row{
+		background-color: #fff;
+		border-radius: 30rpx;
+		margin-bottom: 20rpx;
+		padding:30rpx 20rpx;
+		.store-top{
+			display: flex;
+			align-items: center;
+			image{
+				margin-right: 10rpx;
+				width:26rpx;
+				height:25rpx;
+			}
+		}
+		.item{
+			margin-top: 20rpx;
+			display: flex;
+			image{
+				width:150rpx;
+				height:150rpx;
+				border-radius:10rpx;
+			}
+			.item-detail{
+				height:150rpx;
+				margin-left: 20rpx;
+				.item-title{
+					width:500rpx;
+					white-space: nowrap;
+					overflow: hidden;
+					text-overflow: ellipsis;
+					font-size:28rpx;
+					color:rgba(30,30,30,1);
+				}
+				.item-spec{
+					display: flex;
+					width:500rpx;
+					justify-content: space-between;
+					.spec{
+						color:#969696;
+					}
+					.num{
+						color:#1E1E1E;
+						font-size:24rpx;
+					}
+				}
+				.item-price{
+					font-size:36rpx;
+					color:#FF4E00;
+				}
+			}
+		}
+		.other_cost{
+			display: flex;
+			height:80rpx;
+			align-items: center;
+			.title{
+				width:170rpx;
+				color:#1E1E1E;
+			}
+			.post{
+				color:#646464;
+				width:540rpx;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				input{
+					color:#303030;
+					width:500rpx;
+				}
+			}
+		}
+	}
+}
+
+.sub_bottom{
+	padding:0 20rpx;
+	position: fixed;
+	bottom:0;
+	width:750rpx;
+	height:100rpx;
+	background:rgba(255,255,255,1);
+	display: flex;
+	align-items: center;
+	.sub_button{
+		width:220rpx;
+		height:70rpx;
+		background:linear-gradient(90deg,rgba(255,145,48,1),rgba(255,102,0,1));
+		border-radius:35rpx;
+		color:#fff;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	.total{
+		margin-left: 200rpx;
+	}
+	.price{
+		margin-right: 10rpx;
+		font-size:40rpx;
+		color:#FF4E00;
+	}
+}
+
 
 </style>
